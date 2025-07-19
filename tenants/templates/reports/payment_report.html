@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Payment Report</h2>
+<a href="{% url 'payment_report_pdf' %}" class="btn btn-primary mb-3">Download PDF</a>
+<form method="GET">
+    <label>Start Date:</label>
+    <input type="date" name="start_date" value="{{ start_date }}">
+
+    <label>End Date:</label>
+    <input type="date" name="end_date" value="{{ end_date }}">
+
+    <button type="submit">Filter</button>
+</form>
+
+<table border="1">
+    <tr>
+        <th>Tenant</th>
+        <th>House</th>
+        <th>Amount Paid</th>
+        <th>Balance Due</th>
+        <th>Date Paid</th>
+    </tr>
+    {% for payment in payments %}
+    <tr>
+        <td>{{ payment.tenant.name }}</td>
+        <td>{{ payment.house.name }}</td>
+        <td>{{ payment.amount_paid }}</td>
+        <td>{{ payment.balance_due }}</td>
+        <td>{{ payment.date_paid }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="5">No payments found in this period.</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

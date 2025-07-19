@@ -1,0 +1,64 @@
+<html>
+
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #333;
+            color: white;
+        }
+
+        h2 {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Payment Report</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Tenant</th>
+                <th>Amount Paid</th>
+                <th>Date Paid</th>
+                <th>Balance Due</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for payment in payments %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ payment.tenant.name }}</td>
+                <td>{{ payment.amount }}</td>
+                <td>{{ payment.date_paid }}</td>
+                <td>{{ payment.balance_due }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align: center;">No payments found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+
+</html>
