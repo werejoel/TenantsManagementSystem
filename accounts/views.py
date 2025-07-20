@@ -1,6 +1,20 @@
 from rest_framework.views import APIView
 from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny
+from django.shortcuts import render
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.serializers import AuthTokenSerializer
+from .serializers import *
+from . models import *
+import random
+import uuid
+from django.core.mail import EmailMessage
+
 # Registration API View
 class RegisterView(APIView):
     permission_classes = [AllowAny]
@@ -29,23 +43,6 @@ class RegisterView(APIView):
         )
         user.save()
         return Response({'message': 'User registered successfully.'}, status=status.HTTP_201_CREATED)
-from django.shortcuts import render
-
-# Create your views here.
-from django.shortcuts import render
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from rest_framework import status
-from rest_framework.response import Response
-from django.contrib.auth.models import User
-from rest_framework.authtoken.models import Token
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.authtoken.serializers import AuthTokenSerializer
-from .serializers import *
-from . models import *
-import random
-import uuid
-from django.core.mail import EmailMessage
 
 
 @api_view(['GET'])
@@ -158,7 +155,7 @@ def passwordResetView(request):
 
     msg = f'Please check your Email for Instructions'
     return Response({'msg':msg}, status=status.HTTP_200_OK)
-#{"username":"engdave"}
+#{"username":"engjoel"}
 
 @api_view(['POST'])
 def passwordResetDoneView(request, **kwargs):

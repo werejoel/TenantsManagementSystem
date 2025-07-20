@@ -11,7 +11,7 @@ const LoginScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const { user, login: setAuthUser } = useContext(AuthContext); // Use login as setAuthUser
+  const { user, login: setAuthUser } = useContext(AuthContext);
 
   // Clear error message when inputs change
   useEffect(() => {
@@ -42,14 +42,13 @@ const LoginScreen = ({ navigation }) => {
       await AsyncStorage.setItem('access', response.data.access);
       await AsyncStorage.setItem('refresh', response.data.refresh);
       
-      // Set user in context using setAuthUser - this will trigger MainNavigator to switch screens
+      // Set user in context using setAuthUser 
       setAuthUser({ 
         username: username.trim(), 
         access: response.data.access,
         ...response.data.user // Include any additional user data from response
       });
-      
-      // No navigation needed - MainNavigator handles the screen transition automatically
+    
       
     } catch (error) {
       console.error('Login error:', error);
@@ -238,7 +237,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 2,
-    minHeight: 48, // Ensure consistent button height
+    minHeight: 48,
   },
   loginButtonDisabled: {
     backgroundColor: '#a0a0a0',

@@ -3,7 +3,6 @@ import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, Text, useWindowDimensions, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-
 import DashboardScreen from '../screens/DashboardScreen';
 import TenantsScreen from '../screens/TenantsScreen';
 import AddTenantScreen from '../screens/AddTenantScreen';
@@ -14,10 +13,8 @@ import MaintenanceScreen from '../screens/MaintenanceScreen';
 import DocumentsScreen from '../screens/DocumentsScreen';
 import ReportsScreen from '../screens/ReportsScreen';
 import LoginScreen from '../screens/LoginScreen';
-// Import missing screen components - you'll need to create these if they don't exist
 import HousesScreen from '../screens/HousesScreen';
 import PaymentsScreen from '../screens/PaymentsScreen';
-
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 
@@ -72,7 +69,7 @@ const PaymentsStack = () => (
 );
 
 
-// Custom Drawer Content for advanced sidebar
+// Custom Drawer sidebar
 const CustomDrawerContent = (props) => {
   const { user, logout } = useContext(AuthContext);
   return (
@@ -210,7 +207,9 @@ const MainDrawer = () => {
     </Drawer.Navigator>
   );
 };
-// Advanced Drawer Styles
+
+
+// Drawer Styles
 const drawerStyles = StyleSheet.create({
   profileSection: {
     alignItems: 'center',

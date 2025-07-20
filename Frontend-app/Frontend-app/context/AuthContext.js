@@ -1,9 +1,7 @@
 import React, { createContext, useState } from 'react';
 import axios from 'axios';
-// ...existing code...
 
 export const AuthContext = createContext();
-
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null); // Store user info and JWT
 

@@ -11,7 +11,7 @@ class PaymentSerializer(serializers.ModelSerializer):
         model = Payment
         fields = '__all__'
 
-class HouseSerializer(serializers.ModelSerializer):  # Add this class
+class HouseSerializer(serializers.ModelSerializer): 
     class Meta:
         model = House
         fields = '__all__'       

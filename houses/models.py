@@ -57,7 +57,7 @@ class House(models.Model):
 
     name = models.CharField(
         max_length=255,
-        default='Unnamed Property',  # Added default value
+        default='Unnamed Property',
         help_text="Name/identifier of the property"
     )
     price = models.PositiveIntegerField(help_text="Monthly rental price in UGX")

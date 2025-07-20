@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { getDashboard, refreshToken } from '../services/authService'; // Added refreshToken import
+import { getDashboard, refreshToken } from '../services/authService';
 import { AuthContext } from '../context/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -58,7 +58,7 @@ const DashboardScreen = ({ navigation }) => {
             return;
           }
         } else {
-          // Other error, you might want to show an error message
+          // Other error, 
           console.error('Failed to fetch dashboard:', error);
         }
       } finally {

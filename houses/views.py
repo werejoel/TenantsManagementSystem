@@ -7,5 +7,3 @@ class HouseListCreateView(generics.ListCreateAPIView):
     queryset = House.objects.all()
     serializer_class = HouseSerializer
 
-
-# Create your views here.

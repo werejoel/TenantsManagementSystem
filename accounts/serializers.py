@@ -19,8 +19,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         Profile.objects.create(user=user, role=role)
         return user
-from django.contrib.auth.models import User
-from rest_framework import serializers
+
+
 
 class UserSerialiser(serializers.ModelSerializer):
     class Meta:
