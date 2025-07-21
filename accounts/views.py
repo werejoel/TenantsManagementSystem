@@ -1,3 +1,4 @@
+from django.db.models import Count
 from rest_framework.views import APIView
 from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny
@@ -15,34 +16,45 @@ import random
 import uuid
 from django.core.mail import EmailMessage
 
+# Dashboard API for admin/manager
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def admin_dashboard_view(request):
+    user = request.user
+    try:
+        profile = Profile.objects.get(user=user)
+    except Profile.DoesNotExist:
+        return Response({'error': 'Profile not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if profile.role not in ['manager', 'admin']:
+        return Response({'error': 'Unauthorized.'}, status=status.HTTP_403_FORBIDDEN)
+
+    total_tenants = Profile.objects.filter(role='tenant').count()
+    total_houses = 0
+    try:
+        from houses.models import House
+        total_houses = House.objects.count()
+    except Exception:
+        pass
+
+    return Response({
+        'dashboard': 'Admin/Manager Dashboard',
+        'role': profile.role,
+        'total_tenants': total_tenants,
+        'total_houses': total_houses,
+    }, status=status.HTTP_200_OK)
+
+
 # Registration API View
 class RegisterView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
-        email = request.data.get('email')
-        first_name = request.data.get('first_name', '')
-        last_name = request.data.get('last_name', '')
-
-        if not username or not password or not email:
-            return Response({'error': 'username, password, and email are required.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        if User.objects.filter(username=username).exists():
-            return Response({'error': 'Username already exists.'}, status=status.HTTP_400_BAD_REQUEST)
-        if User.objects.filter(email=email).exists():
-            return Response({'error': 'Email already exists.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        user = User.objects.create_user(
-            username=username,
-            password=password,
-            email=email,
-            first_name=first_name,
-            last_name=last_name
-        )
-        user.save()
-        return Response({'message': 'User registered successfully.'}, status=status.HTTP_201_CREATED)
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'User registered successfully.'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
@@ -59,8 +71,18 @@ def loginView(request):
     if serialiser.is_valid():
         user = serialiser.validated_data['user']
         token, created = Token.objects.get_or_create(user = user)
+        # Get user role from Profile
+        try:
+            profile = Profile.objects.get(user=user)
+            role = profile.role
+        except Profile.DoesNotExist:
+            role = 'tenant'
         msg = {
-            'data': {'user id':user.id, 'name':user.get_full_name()},
+            'data': {
+                'user id': user.id,
+                'name': user.get_full_name(),
+                'role': role
+            },
             'token': token.key
         }
         return Response(msg, status=status.HTTP_200_OK)
@@ -192,6 +214,3 @@ def passwordChangeView(request):
         return Response(
             {'msg':'Your old Password is Incorrect'},
             status=status.HTTP_200_OK)
-
-
-

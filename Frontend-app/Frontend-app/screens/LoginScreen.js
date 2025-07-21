@@ -43,9 +43,11 @@ const LoginScreen = ({ navigation }) => {
       await AsyncStorage.setItem('refresh', response.data.refresh);
       
       // Set user in context using setAuthUser 
+      // Ensure role is included for navigation
       setAuthUser({ 
         username: username.trim(), 
         access: response.data.access,
+        role: response.data.user?.role || 'tenant',
         ...response.data.user // Include any additional user data from response
       });
     

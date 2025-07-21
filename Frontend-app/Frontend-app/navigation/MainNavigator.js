@@ -286,6 +286,16 @@ const MainNavigator = () => {
             options={{ presentation: 'modal' }} 
           />
         </>
+      ) : user.role === 'admin' || user.role === 'manager' ? (
+        <Stack.Screen 
+          name="AdminDashboard" 
+          component={require('../screens/AdminDashboardScreen').default} 
+        />
+      ) : user.role === 'tenant' ? (
+        <Stack.Screen 
+          name="TenantDashboard" 
+          component={require('../screens/TenantDashboardScreen').default} 
+        />
       ) : (
         <Stack.Screen 
           name="MainDrawer" 
