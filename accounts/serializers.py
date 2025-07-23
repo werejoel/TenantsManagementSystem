@@ -17,7 +17,10 @@ class RegisterSerializer(serializers.ModelSerializer):
             email=validated_data.get('email', ''),
             password=validated_data['password']
         )
-        Profile.objects.create(user=user, role=role)
+        # The Profile will be created by the signal. Set the role if needed.
+        if hasattr(user, 'profile'):
+            user.profile.role = role
+            user.profile.save()
         return user
 
 

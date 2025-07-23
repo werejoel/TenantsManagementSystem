@@ -11,12 +11,33 @@ const RegisterScreen = ({ navigation }) => {
 
   const { login: setAuthUser } = React.useContext(require('../context/AuthContext').AuthContext);
   const handleRegister = async () => {
+    // Frontend validation
+    if (!name.trim()) {
+      Alert.alert('Validation Error', 'Name is required.');
+      return;
+    }
+    if (!email.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      Alert.alert('Validation Error', 'A valid email is required.');
+      return;
+    }
+    if (!password || password.length < 8) {
+      Alert.alert('Validation Error', 'Password must be at least 8 characters.');
+      return;
+    }
+    const normalizedRole = (role || '').toLowerCase();
+    if (normalizedRole !== 'tenant' && normalizedRole !== 'manager') {
+      Alert.alert('Validation Error', 'Role must be tenant or manager.');
+      return;
+    }
+    // Log payload
+    const payload = { username: name, email, password, role: normalizedRole };
+    console.log('Register payload:', payload);
     try {
-      await register(name, email, password, role);
+      await register(name, email, password, normalizedRole);
       // Auto-login after registration
       const response = await require('../services/authService').login(name, password);
       // Extract role from response
-      const userRole = response.data?.data?.role || response.data?.user?.role || role;
+      const userRole = response.data?.data?.role || response.data?.user?.role || normalizedRole;
       // Store tokens in AsyncStorage
       if (response.data?.access) {
         await require('@react-native-async-storage/async-storage').default.setItem('access', response.data.access);
@@ -31,18 +52,20 @@ const RegisterScreen = ({ navigation }) => {
         role: userRole,
         ...response.data.user
       });
-      // Normalize role to lowercase for safety
-      const normalizedRole = (userRole || '').toLowerCase();
       // Redirect to dashboard based on role
-      if (normalizedRole === 'admin' || normalizedRole === 'manager') {
+      if (userRole === 'admin' || userRole === 'manager') {
         navigation.reset({ index: 0, routes: [{ name: 'MainDrawer' }] });
-      } else if (normalizedRole === 'tenant') {
+      } else if (userRole === 'tenant') {
         navigation.reset({ index: 0, routes: [{ name: 'TenantDashboard' }] });
       } else {
         navigation.reset({ index: 0, routes: [{ name: 'MainDrawer' }] });
       }
     } catch (error) {
-      Alert.alert('Registration Failed', error.response?.data?.detail || 'Error while registering');
+      // Log backend error details
+      if (error.response) {
+        console.log('Registration error response:', error.response.data);
+      }
+      Alert.alert('Registration Failed', error.response?.data?.detail || JSON.stringify(error.response?.data) || 'Error while registering');
     }
   };
 
