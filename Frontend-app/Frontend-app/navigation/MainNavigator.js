@@ -17,6 +17,8 @@ import HousesScreen from '../screens/HousesScreen';
 import PaymentsScreen from '../screens/PaymentsScreen';
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import RegisterScreen from '../screens/RegisterScreen';
+
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -267,7 +269,6 @@ const drawerStyles = StyleSheet.create({
   },
 });
 
-import RegisterScreen from '../screens/RegisterScreen';
 
 const MainNavigator = () => {
   const { user } = useContext(AuthContext);
@@ -288,8 +289,8 @@ const MainNavigator = () => {
         </>
       ) : user.role === 'admin' || user.role === 'manager' ? (
         <Stack.Screen 
-          name="AdminDashboard" 
-          component={require('../screens/AdminDashboardScreen').default} 
+          name="MainDrawer" 
+          component={MainDrawer} 
         />
       ) : user.role === 'tenant' ? (
         <Stack.Screen 

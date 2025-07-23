@@ -44,14 +44,32 @@ const LoginScreen = ({ navigation }) => {
       
       // Set user in context using setAuthUser 
       // Ensure role is included for navigation
+      // Extract role from correct response location
+      const role = response.data?.data?.role || response.data?.user?.role || 'tenant';
       setAuthUser({ 
         username: username.trim(), 
         access: response.data.access,
-        role: response.data.user?.role || 'tenant',
+        role,
         ...response.data.user // Include any additional user data from response
       });
-    
-      
+
+      // Navigate to dashboard based on role
+      if (role === 'admin' || role === 'manager') {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'MainDrawer' }],
+        });
+      } else if (role === 'tenant') {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'TenantDashboard' }],
+        });
+      } else {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'MainDrawer' }],
+        });
+      }
     } catch (error) {
       console.error('Login error:', error);
       

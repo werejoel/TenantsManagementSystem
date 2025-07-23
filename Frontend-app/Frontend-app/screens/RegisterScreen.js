@@ -9,13 +9,30 @@ const RegisterScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('tenant'); // or 'manager'
 
+  const { login: setAuthUser } = React.useContext(require('../context/AuthContext').AuthContext);
   const handleRegister = async () => {
     try {
       await register(name, email, password, role);
-      Alert.alert('Registration Successful', 'You can now log in.');
-      navigation.navigate('Login');
+      // Auto-login after registration
+      const response = await require('../services/authService').login(name, password);
+      // Extract role from response
+      const userRole = response.data?.data?.role || response.data?.user?.role || role;
+      setAuthUser({
+        username: name,
+        access: response.data.access,
+        role: userRole,
+        ...response.data.user
+      });
+      // Redirect to dashboard based on role
+      if (userRole === 'admin' || userRole === 'manager') {
+        navigation.reset({ index: 0, routes: [{ name: 'AdminDashboard' }] });
+      } else if (userRole === 'tenant') {
+        navigation.reset({ index: 0, routes: [{ name: 'TenantDashboard' }] });
+      } else {
+        navigation.reset({ index: 0, routes: [{ name: 'MainDrawer' }] });
+      }
     } catch (error) {
-      Alert.alert('Registration Failed', error.response?.data?.detail || 'Error registering');
+      Alert.alert('Registration Failed', error.response?.data?.detail || 'Error while registering');
     }
   };
 

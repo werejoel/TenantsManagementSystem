@@ -105,6 +105,19 @@ const DashboardScreen = ({ navigation }) => {
     );
   }
 
+  // Role icon and label mapping
+  const roleConfig = {
+    manager: { icon: 'account-tie', label: 'Manager' },
+    tenant: { icon: 'account', label: 'Tenant' },
+    landlord: { icon: 'account-cash', label: 'Landlord' },
+    admin: { icon: 'account-star', label: 'Admin' },
+  };
+
+  // Fallback for unknown/missing role
+  const roleKey = dashboard.role && roleConfig[dashboard.role.toLowerCase()] ? dashboard.role.toLowerCase() : 'tenant';
+  const roleIcon = roleConfig[roleKey]?.icon || 'account';
+  const roleLabel = roleConfig[roleKey]?.label || (dashboard.role ? dashboard.role.charAt(0).toUpperCase() + dashboard.role.slice(1) : 'Tenant');
+
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.headerRow}>
@@ -121,13 +134,11 @@ const DashboardScreen = ({ navigation }) => {
           <Text style={styles.title}>{dashboard.dashboard}</Text>
           <View style={styles.roleBadge}>
             <MaterialCommunityIcons 
-              name={dashboard.role === 'manager' ? 'account-tie' : 'account'} 
-              size={20} 
-              color="#fff" 
+              name={roleIcon}
+              size={20}
+              color="#fff"
             />
-            <Text style={styles.roleText}>
-              {dashboard.role.charAt(0).toUpperCase() + dashboard.role.slice(1)}
-            </Text>
+            <Text style={styles.roleText}>{roleLabel}</Text>
           </View>
         </View>
 
