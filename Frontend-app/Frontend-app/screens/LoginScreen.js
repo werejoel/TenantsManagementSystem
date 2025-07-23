@@ -37,29 +37,39 @@ const LoginScreen = ({ navigation }) => {
     
     try {
       const response = await loginApi(username.trim(), password);
-      
+
       // Store tokens
       await AsyncStorage.setItem('access', response.data.access);
       await AsyncStorage.setItem('refresh', response.data.refresh);
-      
-      // Set user in context using setAuthUser 
-      // Ensure role is included for navigation
-      // Extract role from correct response location
-      const role = response.data?.data?.role || response.data?.user?.role || 'tenant';
-      setAuthUser({ 
-        username: username.trim(), 
-        access: response.data.access,
-        role,
-        ...response.data.user // Include any additional user data from response
-      });
+
+      // Fetch dashboard to get the correct role
+      let dashboardRole = 'tenant';
+      try {
+        const dashboardRes = await getDashboard(response.data.access);
+        dashboardRole = dashboardRes.data?.role || 'tenant';
+        setAuthUser({
+          username: username.trim(),
+          access: response.data.access,
+          role: dashboardRole,
+          ...response.data.user
+        });
+      } catch (err) {
+        // fallback if dashboard fetch fails
+        setAuthUser({
+          username: username.trim(),
+          access: response.data.access,
+          role: dashboardRole,
+          ...response.data.user
+        });
+      }
 
       // Navigate to dashboard based on role
-      if (role === 'admin' || role === 'manager') {
+      if (dashboardRole === 'admin' || dashboardRole === 'manager') {
         navigation.reset({
           index: 0,
           routes: [{ name: 'MainDrawer' }],
         });
-      } else if (role === 'tenant') {
+      } else if (dashboardRole === 'tenant') {
         navigation.reset({
           index: 0,
           routes: [{ name: 'TenantDashboard' }],
