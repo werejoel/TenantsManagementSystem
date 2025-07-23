@@ -17,16 +17,26 @@ const RegisterScreen = ({ navigation }) => {
       const response = await require('../services/authService').login(name, password);
       // Extract role from response
       const userRole = response.data?.data?.role || response.data?.user?.role || role;
+      // Store tokens in AsyncStorage
+      if (response.data?.access) {
+        await require('@react-native-async-storage/async-storage').default.setItem('access', response.data.access);
+      }
+      if (response.data?.refresh) {
+        await require('@react-native-async-storage/async-storage').default.setItem('refresh', response.data.refresh);
+      }
       setAuthUser({
         username: name,
         access: response.data.access,
+        refresh: response.data.refresh,
         role: userRole,
         ...response.data.user
       });
+      // Normalize role to lowercase for safety
+      const normalizedRole = (userRole || '').toLowerCase();
       // Redirect to dashboard based on role
-      if (userRole === 'admin' || userRole === 'manager') {
-        navigation.reset({ index: 0, routes: [{ name: 'AdminDashboard' }] });
-      } else if (userRole === 'tenant') {
+      if (normalizedRole === 'admin' || normalizedRole === 'manager') {
+        navigation.reset({ index: 0, routes: [{ name: 'MainDrawer' }] });
+      } else if (normalizedRole === 'tenant') {
         navigation.reset({ index: 0, routes: [{ name: 'TenantDashboard' }] });
       } else {
         navigation.reset({ index: 0, routes: [{ name: 'MainDrawer' }] });

@@ -27,13 +27,17 @@ const DashboardScreen = ({ navigation }) => {
     const fetchDashboard = async () => {
       setLoading(true);
       let token = await AsyncStorage.getItem('access');
-      
+      if (!token) {
+        // No token, logout user
+        handleLogout();
+        setLoading(false);
+        return;
+      }
       try {
         const response = await getDashboard(token);
         setDashboard(response.data);
       } catch (error) {
         console.error('Dashboard fetch error:', error);
-        
         if (error.response && error.response.status === 401) {
           // Try to refresh token
           const refresh = await AsyncStorage.getItem('refresh');
@@ -42,30 +46,28 @@ const DashboardScreen = ({ navigation }) => {
               const refreshResponse = await refreshToken(refresh);
               token = refreshResponse.data.access;
               await AsyncStorage.setItem('access', token);
-              
               // Retry fetching dashboard with new token
               const response = await getDashboard(token);
               setDashboard(response.data);
             } catch (refreshError) {
               console.error('Token refresh failed:', refreshError);
-              // If refresh fails, logout user
               handleLogout();
+              setLoading(false);
               return;
             }
           } else {
-            // No refresh token available, logout user
             handleLogout();
+            setLoading(false);
             return;
           }
         } else {
-          // Other error, 
+          // Other error
           console.error('Failed to fetch dashboard:', error);
         }
       } finally {
         setLoading(false);
       }
     };
-
     fetchDashboard();
   }, []);
 
