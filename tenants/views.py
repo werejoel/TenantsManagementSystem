@@ -8,11 +8,22 @@ from django.template.loader import get_template
 from weasyprint import HTML
 import tempfile
 import os
+from rest_framework import permissions
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import TenantSerializer, PaymentSerializer, HouseSerializer
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated, BasePermission
+class IsManagerOrReadOnly(BasePermission):
+    """Allow only users with role 'manager' to POST (add tenants)."""
+    def has_permission(self, request, view):
+        if request.method in ['POST']:
+            user = request.user
+            # Log user for debugging
+            print("[DEBUG] User:", user, "Is Authenticated:", user.is_authenticated, "Role:", getattr(getattr(user, 'profile', None), 'role', None))
+            return user.is_authenticated and hasattr(user, 'profile') and getattr(user.profile, 'role', None) == 'manager'
+        return request.user and request.user.is_authenticated
 
 class DashboardAPIView(APIView):
     def get(self, request):
@@ -119,6 +130,12 @@ def tenant_balance_pdf(request):
 class TenantListCreateView(generics.ListCreateAPIView):
     queryset = Tenant.objects.all()
     serializer_class = TenantSerializer
+    permission_classes = [IsManagerOrReadOnly]
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        print("[DEBUG] Creating tenant by:", user, "Is Authenticated:", user.is_authenticated, "Role:", getattr(getattr(user, 'profile', None), 'role', None))
+        return super().perform_create(serializer)
 
 class PaymentListCreateView(generics.ListCreateAPIView):
     queryset = Payment.objects.all()
@@ -128,4 +145,61 @@ class HouseListCreateView(generics.ListCreateAPIView):  # Add this class
     queryset = House.objects.all()
     serializer_class = HouseSerializer
 
-# Create your views here.
+
+from rest_framework import permissions
+from rest_framework.decorators import action
+from rest_framework.generics import RetrieveUpdateDestroyAPIView, UpdateAPIView
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import JSONParser
+
+# FR-007, FR-008: Retrieve, update, deactivate tenant
+class TenantRetrieveUpdateDeactivateView(RetrieveUpdateDestroyAPIView):
+    queryset = Tenant.objects.all()
+    serializer_class = TenantSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, *args, **kwargs):
+        # Allow partial update
+        return self.partial_update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        # Deactivate instead of delete
+        tenant = self.get_object()
+        tenant.status = 'inactive'
+        tenant.save()
+        return Response({'status': 'deactivated'}, status=status.HTTP_200_OK)
+
+# FR-009: Assign tenant to house/unit
+class AssignTenantToHouseView(UpdateAPIView):
+    queryset = Tenant.objects.all()
+    serializer_class = TenantSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, *args, **kwargs):
+        tenant = self.get_object()
+        house_id = request.data.get('house')
+        if not house_id:
+            return Response({'error': 'house id required'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            house = House.objects.get(id=house_id)
+        except House.DoesNotExist:
+            return Response({'error': 'House not found'}, status=status.HTTP_404_NOT_FOUND)
+        tenant.house = house
+        tenant.save()
+        return Response(self.get_serializer(tenant).data)
+
+# FR-010: Tenant views their assigned house/unit
+class TenantAssignedHouseView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        try:
+            tenant = Tenant.objects.get(user=user)
+        except Tenant.DoesNotExist:
+            return Response({'error': 'Tenant profile not found'}, status=status.HTTP_404_NOT_FOUND)
+        if not tenant.house:
+            return Response({'detail': 'No house/unit assigned'}, status=status.HTTP_404_NOT_FOUND)
+        house_data = HouseSerializer(tenant.house).data
+        return Response(house_data)

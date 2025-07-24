@@ -8,6 +8,7 @@ const AddTenantScreen = ({ navigation }) => {
   const { user } = useContext(AuthContext);
 
   const handleAddTenant = async (tenantData) => {
+    console.log('Manager token:', user?.token);
     try {
       await addTenant(tenantData, user?.token);
       Alert.alert('Success', 'Tenant added successfully');

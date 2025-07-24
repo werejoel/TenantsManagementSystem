@@ -9,17 +9,20 @@ const TenantsScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const { user } = useContext(AuthContext);
 
+
+  const loadTenants = async () => {
+    setLoading(true);
+    try {
+      const data = await fetchTenants(user?.token);
+      setTenants(data);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to fetch tenants');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const loadTenants = async () => {
-      try {
-        const data = await fetchTenants(user?.token);
-        setTenants(data);
-      } catch (error) {
-        Alert.alert('Error', 'Failed to fetch tenants');
-      } finally {
-        setLoading(false);
-      }
-    };
     loadTenants();
   }, [user]);
 
@@ -29,9 +32,14 @@ const TenantsScreen = ({ navigation }) => {
       {loading ? (
         <ActivityIndicator size="large" color="#000" />
       ) : (
-        <TenantList tenants={tenants} />
+        <TenantList tenants={tenants} onActionComplete={loadTenants} />
       )}
-      <Button title="Add Tenant" onPress={() => navigation.navigate('AddTenant')} />
+      <Button title="Add Tenant" onPress={async () => {
+        const unsubscribe = navigation.addListener('focus', loadTenants);
+        navigation.navigate('AddTenant');
+        // Remove listener after navigation
+        setTimeout(() => unsubscribe(), 1000);
+      }} />
     </View>
   );
 };

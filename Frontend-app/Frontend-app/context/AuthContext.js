@@ -2,11 +2,22 @@ import React, { createContext, useState } from 'react';
 import axios from 'axios';
 
 export const AuthContext = createContext();
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null); // Store user info and JWT
 
+  // userData should be the JWT response: { access, refresh, ...userInfo }
   const login = (userData) => {
-    setUser(userData);
+    // If userData has access token, store it as user.token
+    if (userData && userData.access) {
+      setUser({
+        ...userData.user, // user info if present
+        token: userData.access,
+        refresh: userData.refresh,
+      });
+    } else {
+      setUser(userData);
+    }
   };
 
   const logout = () => {

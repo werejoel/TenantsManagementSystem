@@ -23,6 +23,9 @@ import RegisterScreen from '../screens/RegisterScreen';
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
 
+import EditTenantScreen from '../screens/EditTenantScreen';
+import AssignHouseScreen from '../screens/AssignHouseScreen';
+
 function TenantsStack() {
   return (
     <Stack.Navigator>
@@ -35,6 +38,16 @@ function TenantsStack() {
         name="AddTenant" 
         component={AddTenantScreen}
         options={{ title: 'Add Tenant' }}
+      />
+      <Stack.Screen 
+        name="EditTenant" 
+        component={EditTenantScreen}
+        options={{ title: 'Edit Tenant' }}
+      />
+      <Stack.Screen 
+        name="AssignHouse" 
+        component={AssignHouseScreen}
+        options={{ title: 'Assign House' }}
       />
     </Stack.Navigator>
   );
