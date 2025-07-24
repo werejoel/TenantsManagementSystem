@@ -105,20 +105,20 @@ const TenantList = ({ tenants, onActionComplete }) => {
   return (
     <View style={styles.container}>
       <View style={styles.tableWrapper}>
-        {/* Fixed Header */}
+        {/*Header */}
         <View style={styles.headerContainer}>
           <View style={styles.headerRow}>
             <View style={styles.tableCellAvatar}>
               <Text style={styles.headerText}>Avatar</Text>
             </View>
             <View style={styles.tableCellName}>
-              <Text style={styles.headerText}>Name</Text>
+              <Text style={styles.headerText}>Names</Text>
             </View>
             <View style={styles.tableCellEmail}>
-              <Text style={styles.headerText}>Email</Text>
+              <Text style={styles.headerText}>Email Addresses</Text>
             </View>
             <View style={styles.tableCellPhone}>
-              <Text style={styles.headerText}>Phone</Text>
+              <Text style={styles.headerText}>Contacts</Text>
             </View>
             <View style={styles.tableCellStatus}>
               <Text style={styles.headerText}>Status</Text>
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   tableCellActions: {
-    width: 430, // Further increased for full Assign Property label
+    width: 430, 
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
@@ -237,8 +237,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
-    alignSelf: 'center', // Center vertically in the cell
-    marginVertical: 0, // Remove any extra vertical margin
+    alignSelf: 'center',
+    marginVertical: 2,
   },
   actionBtn: {
     minWidth: 135,
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   assignBtn: {
     borderColor: '#28a745', 
     borderWidth: 2,
-    minWidth: 155, // Increased for long label
+    minWidth: 155,
     maxWidth: 190,
   },
   buttonContent: {
