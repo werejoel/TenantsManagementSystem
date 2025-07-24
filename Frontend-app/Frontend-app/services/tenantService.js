@@ -7,7 +7,10 @@ const API_URL = 'http://localhost:8000/api/tenants/';
 export const fetchTenants = async (token) => {
   try {
     const response = await axios.get(`${API_URL}list/`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
     });
     return response.data;
   } catch (error) {
@@ -19,10 +22,16 @@ export const fetchTenants = async (token) => {
 export const addTenant = async (tenantData, token) => {
   try {
     const response = await axios.post(`${API_URL}list/`, tenantData, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
     });
     return response.data;
   } catch (error) {
+    if (error.response && error.response.data) {
+      console.log('Add Tenant Error:', error.response.data);
+    }
     throw error;
   }
 };
@@ -31,7 +40,10 @@ export const addTenant = async (tenantData, token) => {
 export const updateTenant = async (id, tenantData, token) => {
   try {
     const response = await axios.patch(`${API_URL}tenant/${id}/`, tenantData, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
     });
     return response.data;
   } catch (error) {
@@ -43,7 +55,10 @@ export const updateTenant = async (id, tenantData, token) => {
 export const deactivateTenant = async (id, token) => {
   try {
     const response = await axios.delete(`${API_URL}tenant/${id}/`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
     });
     return response.data;
   } catch (error) {
@@ -55,7 +70,10 @@ export const deactivateTenant = async (id, token) => {
 export const assignTenantToHouse = async (id, houseId, token) => {
   try {
     const response = await axios.patch(`${API_URL}tenant/${id}/assign-house/`, { house: houseId }, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
     });
     return response.data;
   } catch (error) {
@@ -67,7 +85,10 @@ export const assignTenantToHouse = async (id, houseId, token) => {
 export const getMyHouse = async (token) => {
   try {
     const response = await axios.get(`${API_URL}my-house/`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
     });
     return response.data;
   } catch (error) {
