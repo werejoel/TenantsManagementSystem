@@ -1,10 +1,11 @@
-
 import React, { useState } from 'react';
 import { StyleSheet, View ,ScrollView} from 'react-native';
 import { Card, TextInput, Button, useTheme, Text, Snackbar } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 
 
+//Main Functional Component for Tenant Form
+// Handles tenant creation and validation
 const TenantForm = ({ onSubmit, initialValues = {}, onCancel }) => {
   const [name, setName] = useState(initialValues.name || '');
   const [email, setEmail] = useState(initialValues.email || '');
@@ -85,83 +86,86 @@ const TenantForm = ({ onSubmit, initialValues = {}, onCancel }) => {
   };
 
   return (
-    <Card style={styles.card} elevation={3}>
-      <Card.Title title="Tenant Details" titleStyle={{ color: theme.colors.primary, fontWeight: 'bold' }} />
-      <Card.Content>
-        <Snackbar
-          visible={showError}
-          onDismiss={() => setShowError(false)}
-          duration={3000}
-          style={{ backgroundColor: 'red' }}
-        >
-          {error}
-        </Snackbar>
-        <TextInput
-          label="Name"
-          value={name}
-          onChangeText={setName}
-          mode="outlined"
-          style={styles.input}
-          left={<TextInput.Icon icon="account" />}
-        />
-        <TextInput
-          label="Email"
-          value={email}
-          onChangeText={setEmail}
-          mode="outlined"
-          keyboardType="email-address"
-          style={styles.input}
-          left={<TextInput.Icon icon="email" />}
-        />
-        <TextInput
-          label="Phone"
-          value={phone}
-          onChangeText={setPhone}
-          mode="outlined"
-          keyboardType="phone-pad"
-          style={styles.input}
-          left={<TextInput.Icon icon="phone" />}
-        />
-        <TextInput
-          label="National ID"
-          value={nationalId}
-          onChangeText={setNationalId}
-          mode="outlined"
-          style={styles.input}
-          left={<TextInput.Icon icon="card-account-details" />}
-        />
-        <View style={styles.buttonRow}>
-          <Button
-            mode="contained"
-            onPress={handleSubmit}
-            style={styles.submitBtn}
-            loading={loading}
-            icon="check"
-            contentStyle={{ height: 48 }}
-          >
-            Submit
-          </Button>
-          <Button
+    <View style={{ flex: 1 }}>
+      <Snackbar
+        visible={showError}
+        onDismiss={() => setShowError(false)}
+        duration={3500}
+        style={styles.snackbar}
+        wrapperStyle={styles.snackbarWrapper}
+      >
+        {error}
+      </Snackbar>
+      <Card style={styles.card} elevation={3}>
+        <Card.Title title="Tenant Details" titleStyle={{ color: theme.colors.primary, fontWeight: 'bold' }} />
+        <Card.Content>
+          <TextInput
+            label="Name"
+            value={name}
+            onChangeText={setName}
             mode="outlined"
-            onPress={handleClear}
-            style={styles.clearBtn}
-            icon="broom"
-            contentStyle={{ height: 48 }}
-          >
-            Clear
-          </Button>
-          <Button
-            mode="text"
-            onPress={handleCancel}
-            style={styles.cancelBtn}
-            icon="close"
-            contentStyle={{ height: 48 }}
-          >
-            Cancel
-          </Button>
-        </View>
-      </Card.Content>
-    </Card>
+            style={styles.input}
+            left={<TextInput.Icon icon="account" />}
+          />
+          <TextInput
+            label="Email"
+            value={email}
+            onChangeText={setEmail}
+            mode="outlined"
+            keyboardType="email-address"
+            style={styles.input}
+            left={<TextInput.Icon icon="email" />}
+          />
+          <TextInput
+            label="Phone"
+            value={phone}
+            onChangeText={setPhone}
+            mode="outlined"
+            keyboardType="phone-pad"
+            style={styles.input}
+            left={<TextInput.Icon icon="phone" />}
+          />
+          <TextInput
+            label="National ID"
+            value={nationalId}
+            onChangeText={setNationalId}
+            mode="outlined"
+            style={styles.input}
+            left={<TextInput.Icon icon="card-account-details" />}
+          />
+          <View style={styles.buttonRow}>
+            <Button
+              mode="contained"
+              onPress={handleSubmit}
+              style={styles.submitBtn}
+              loading={loading}
+              icon="check"
+              contentStyle={{ height: 48 }}
+            >
+              Submit
+            </Button>
+            <Button
+              mode="outlined"
+              onPress={handleClear}
+              style={styles.clearBtn}
+              icon="broom"
+              contentStyle={{ height: 48 }}
+            >
+              Clear
+            </Button>
+            <Button
+              mode="text"
+              onPress={handleCancel}
+              style={styles.cancelBtn}
+              icon="close"
+              contentStyle={{ height: 48 }}
+            >
+              Cancel
+            </Button>
+          </View>
+        </Card.Content>
+      </Card>
+    </View>
   );
 };
 
@@ -200,6 +204,22 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginLeft: 4,
     minWidth: 90,
+  },
+  snackbar: {
+    backgroundColor: 'red',
+    zIndex: 100,
+    alignSelf: 'center',
+    borderRadius: 8,
+    marginTop: 32,
+    minWidth: 220,
+    maxWidth: 400,
+  },
+  snackbarWrapper: {
+    top: 40,
+    alignItems: 'center',
+    position: 'absolute',
+    width: '100%',
+    zIndex: 100,
   },
 });
 
