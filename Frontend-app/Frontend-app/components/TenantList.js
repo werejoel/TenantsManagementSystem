@@ -1,10 +1,9 @@
-
 import React, { useContext } from 'react';
 import { ScrollView, View, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../context/AuthContext';
 import { deactivateTenant } from '../services/tenantService';
-import { Card, Text, Button, Avatar, useTheme, Badge, Divider } from 'react-native-paper';
+import { Text, Button, Avatar, useTheme, Badge, Divider } from 'react-native-paper';
 import { Dimensions } from 'react-native';
 
 //Main Function
@@ -15,12 +14,11 @@ const TenantList = ({ tenants, onActionComplete }) => {
   const [deactivatingId, setDeactivatingId] = React.useState(null);
   const screenWidth = Dimensions.get('window').width;
 
-
   const handleDeactivate = async (id) => {
     setDeactivatingId(id);
     try {
       await deactivateTenant(id, user?.token);
-      Alert.alert('Success', 'Tenant deactivated');
+      Alert.alert('Success', 'Tenant deactivated successfully');
       if (onActionComplete) onActionComplete();
     } catch (error) {
       Alert.alert('Error', 'Failed to deactivate tenant');
@@ -45,212 +43,232 @@ const TenantList = ({ tenants, onActionComplete }) => {
     });
   };
 
-
-  // card width and font size
-  let cardWidth = '100%';
-  let cardMaxWidth = 1100;
-  let cardMinWidth = 260;
-  let infoFontSize = 16;
-  let listMaxWidth = 1400;
-  if (screenWidth < 350) {
-    cardWidth = '99%';
-    cardMinWidth = 180;
-    infoFontSize = 14;
-    listMaxWidth = 400;
-  } else if (screenWidth < 420) {
-    cardWidth = '98%';
-    cardMinWidth = 210;
-    infoFontSize = 15;
-    listMaxWidth = 600;
-  } else if (screenWidth > 700) {
-    cardWidth = '100%';
-    cardMaxWidth = 1300;
-    listMaxWidth = 1600;
-  }
-
-  const renderTenant = ({ item }) => (
-    <Card
-      style={[
-        styles.card,
-        {
-          width: cardWidth,
-          minWidth: cardMinWidth,
-          maxWidth: cardMaxWidth,
-          alignSelf: 'stretch',
-          marginHorizontal: 0,
-          paddingHorizontal: screenWidth < 350 ? 4 : 12,
-        },
-      ]}
-      elevation={3}
-      onPress={() => handleEdit(item)}
-      rippleColor={theme.colors.primary + '22'}
-    >
-      <Card.Title
-        title={item.name}
-        subtitle={item.email}
-        left={(props) => <Avatar.Text {...props} label={item.name ? item.name[0] : '?'} style={{ backgroundColor: theme.colors.primary }} />}
-        right={() => (
-          <Badge
-            style={[
-              styles.statusBadge,
-              { backgroundColor: item.status === 'active' ? '#5cb85c' : '#d9534f' },
-            ]}
-            size={24}
-          >
-            {item.status === 'active' ? 'Active' : 'Inactive'}
-          </Badge>
-        )}
-      />
-      <Card.Content>
-        <Text style={[styles.info, { fontSize: infoFontSize }]}>Phone: <Text style={{ color: theme.colors.primary }}>{item.phone}</Text></Text>
-      </Card.Content>
-      <Divider style={styles.divider} />
-      <Card.Actions style={styles.actions}>
+  const renderTenantRow = (item, idx) => (
+    <View key={item.id} style={[styles.tableRow, idx % 2 === 0 ? styles.tableRowEven : styles.tableRowOdd]}> 
+      <View style={styles.tableCellAvatar}>
+        <Avatar.Text size={32} label={item.name ? item.name[0] : '?'} style={{ backgroundColor: theme.colors.primary }} />
+      </View>
+      <View style={styles.tableCellName}>
+        <Text style={styles.tableCell}>{item.name}</Text>
+      </View>
+      <View style={styles.tableCellEmail}>
+        <Text style={styles.tableCell}>{item.email}</Text>
+      </View>
+      <View style={styles.tableCellPhone}>
+        <Text style={styles.tableCell}>{item.phone}</Text>
+      </View>
+      <View style={styles.tableCellStatus}>
+        <Badge style={[styles.statusBadge, { backgroundColor: item.status === 'active' ? '#28a745' : '#dc3545' }]} size={22}>
+          {item.status === 'active' ? 'Active' : 'Inactive'}
+        </Badge>
+      </View>
+      <View style={styles.tableCellActions}>
         <Button
           mode="contained"
           onPress={() => handleEdit(item)}
-          style={styles.actionBtn}
+          style={[styles.actionBtn, styles.editBtn]}
           icon="pencil"
-          compact
-          contentStyle={{ height: 38 }}
-          buttonColor={theme.colors.primary}
-          textColor="#fff"
+          compact={false}
+          contentStyle={styles.buttonContent}
+          labelStyle={styles.buttonLabel}
         >
           Edit
         </Button>
         <Button
-          mode="contained-tonal"
+          mode="contained"
           onPress={() => handleDeactivate(item.id)}
-          style={styles.actionBtn}
-          icon="account-off"
-          buttonColor="#d9534f"
-          textColor="#fff"
+          style={[styles.actionBtn, styles.deactivateBtn]}
+          icon="account-cancel"
           loading={deactivatingId === item.id}
-          disabled={deactivatingId === item.id}
-          compact
-          contentStyle={{ height: 38 }}
+          disabled={deactivatingId === item.id || item.status === 'inactive'}
+          compact={false}
+          contentStyle={styles.buttonContent}
+          labelStyle={styles.buttonLabel}
         >
-          Deactivate
+          {deactivatingId === item.id ? 'Deactivating...' : 'Deactivate'}
         </Button>
         <Button
           mode="outlined"
           onPress={() => handleAssignHouse(item)}
-          style={styles.actionBtn}
-          icon="home"
-          compact
-          contentStyle={{ height: 38 }}
-          textColor={theme.colors.primary}
+          style={[styles.actionBtn, styles.assignBtn]}
+          icon="home-plus"
+          compact={false}
+          contentStyle={styles.buttonContent}
+          labelStyle={[styles.buttonLabel, styles.outlinedButtonLabel]}
         >
-          Assign House
+          Assign Property
         </Button>
-      </Card.Actions>
-    </Card>
+      </View>
+    </View>
   );
 
-  // rows for grid display
-  const numColumns = screenWidth > 700 ? 3 : screenWidth > 500 ? 2 : 1;
-  const rows = [];
-  for (let i = 0; i < tenants.length; i += numColumns) {
-    rows.push(tenants.slice(i, i + numColumns));
-  }
-
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#f7f8fa' }} contentContainerStyle={{ flexGrow: 1 }}>
-      <View style={[styles.listOuter, { maxWidth: listMaxWidth, alignSelf: 'center', width: '100%' }]}>
-        <View style={styles.gridContainer}>
-          {rows.map((row, rowIndex) => (
-            <View key={rowIndex} style={styles.row}>
-              {row.map((item, colIndex) => (
-                <View key={item.id} style={[styles.col, { flex: 1 / numColumns }]}>
-                  {renderTenant({ item })}
-                </View>
-              ))}
-
-              {/* Fill empty columns for last row if needed */}
-              {row.length < numColumns &&
-                Array.from({ length: numColumns - row.length }).map((_, idx) => (
-                  <View key={`empty-${idx}`} style={[styles.col, { flex: 1 / numColumns }]} />
-                ))}
+    <View style={styles.container}>
+      <View style={styles.tableWrapper}>
+        {/* Fixed Header */}
+        <View style={styles.headerContainer}>
+          <View style={styles.headerRow}>
+            <View style={styles.tableCellAvatar}>
+              <Text style={styles.headerText}>Avatar</Text>
             </View>
-          ))}
+            <View style={styles.tableCellName}>
+              <Text style={styles.headerText}>Name</Text>
+            </View>
+            <View style={styles.tableCellEmail}>
+              <Text style={styles.headerText}>Email</Text>
+            </View>
+            <View style={styles.tableCellPhone}>
+              <Text style={styles.headerText}>Phone</Text>
+            </View>
+            <View style={styles.tableCellStatus}>
+              <Text style={styles.headerText}>Status</Text>
+            </View>
+            <View style={styles.tableCellActions}>
+              <Text style={styles.headerText}>Actions</Text>
+            </View>
+          </View>
         </View>
+
+        {/* Scrollable Content */}
+        <ScrollView 
+          style={styles.scrollContainer}
+          showsVerticalScrollIndicator={true}
+        >
+          {tenants.map((item, idx) => renderTenantRow(item, idx))}
+        </ScrollView>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
-//Custom sytlesheet
 const styles = StyleSheet.create({
-  listOuter: {
+  container: {
     flex: 1,
-    backgroundColor: '#f7f8fa',
-    alignItems: 'center',
-    width: '100%',
+    backgroundColor: '#f5f7fa',
+    padding: 16,
   },
-  gridContainer: {
-    flexDirection: 'column',
-    width: '100%',
-    padding: 8,
-    paddingBottom: 24,
-  },
-  row: {
-    flexDirection: 'row',
-    width: '100%',
-    marginBottom: 8,
-    alignItems: 'stretch',
-  },
-  col: {
-    flexDirection: 'column',
-    paddingHorizontal: 4,
-    minWidth: 0,
-  },
-  card: {
-    marginBottom: 28,
-    borderRadius: 22,
-    overflow: 'hidden',
-    backgroundColor: '#fff',
+  tableWrapper: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12,
-    shadowRadius: 14,
-    elevation: 5,
-    transitionDuration: '150ms',
-    alignSelf: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 8,
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    overflow: 'hidden',
+  },
+  headerContainer: {
+    backgroundColor: '#2c3e50',
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    minHeight: 60,
+  },
+  headerText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  scrollContainer: {
+    flex: 1,
+    maxHeight: 500,
+  },
+  tableRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e9ecef',
+    minHeight: 80, 
+  },
+  tableRowEven: {
+    backgroundColor: '#f8f9fa',
+  },
+  tableRowOdd: {
+    backgroundColor: '#ffffff',
+  },
+  tableCell: {
+    fontSize: 15,
+    color: '#495057',
+    fontWeight: '500',
+  },
+  tableCellAvatar: {
+    width: 90,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tableCellName: {
+    width: 170,
+    paddingHorizontal: 10,
+  },
+  tableCellEmail: {
+    width: 240,
+    paddingHorizontal: 10,
+  },
+  tableCellPhone: {
+    width: 150,
+    paddingHorizontal: 10,
+  },
+  tableCellStatus: {
+    width: 120,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tableCellActions: {
+    width: 430, // Further increased for full Assign Property label
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    paddingHorizontal: 10,
   },
   statusBadge: {
-    alignSelf: 'center',
-    marginRight: 8,
     color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 13,
-    letterSpacing: 0.5,
-    elevation: 2,
-  },
-  divider: {
-    marginVertical: 4,
-    backgroundColor: '#eee',
-    height: 1,
-  },
-  info: {
-    fontSize: 15,
-    marginBottom: 4,
-    color: '#444',
-  },
-  actions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 4,
-    paddingBottom: 10,
-    gap: 4,
+    fontWeight: '600',
+    fontSize: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
   },
   actionBtn: {
-    flex: 1,
-    marginHorizontal: 2,
+    minWidth: 135,
+    maxWidth: 170,
     borderRadius: 8,
-    minWidth: 80,
+    elevation: 2, 
+    marginHorizontal: 2,
+  },
+  editBtn: {
+    backgroundColor: '#007bff', 
+  },
+  deactivateBtn: {
+    backgroundColor: '#dc3545',
+  },
+  assignBtn: {
+    borderColor: '#28a745', 
+    borderWidth: 2,
+    minWidth: 155, // Increased for long label
+    maxWidth: 190,
+  },
+  buttonContent: {
+    height: 42, 
+    paddingHorizontal: 8,
+  },
+  buttonLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#ffffff',
+    textAlign: 'center',
+  },
+  outlinedButtonLabel: {
+    color: '#28a745', 
   },
 });
 
