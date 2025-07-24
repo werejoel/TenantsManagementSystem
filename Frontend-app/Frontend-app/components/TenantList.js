@@ -7,12 +7,14 @@ import { deactivateTenant } from '../services/tenantService';
 import { Card, Text, Button, Avatar, useTheme, Badge, Divider } from 'react-native-paper';
 import { Dimensions } from 'react-native';
 
+//Main Function
 const TenantList = ({ tenants, onActionComplete }) => {
   const navigation = useNavigation();
   const { user } = useContext(AuthContext);
   const theme = useTheme();
   const [deactivatingId, setDeactivatingId] = React.useState(null);
   const screenWidth = Dimensions.get('window').width;
+
 
   const handleDeactivate = async (id) => {
     setDeactivatingId(id);
@@ -43,26 +45,26 @@ const TenantList = ({ tenants, onActionComplete }) => {
     });
   };
 
-  
+
   // card width and font size
   let cardWidth = '100%';
-  let cardMaxWidth = 1100; // Increased from 800
-  let cardMinWidth = 260;  // Increased from 180
+  let cardMaxWidth = 1100;
+  let cardMinWidth = 260;
   let infoFontSize = 16;
-  let listMaxWidth = 1400; // Increased from 1000
+  let listMaxWidth = 1400;
   if (screenWidth < 350) {
     cardWidth = '99%';
-    cardMinWidth = 180; // Increased from 120
+    cardMinWidth = 180;
     infoFontSize = 14;
     listMaxWidth = 400;
   } else if (screenWidth < 420) {
     cardWidth = '98%';
-    cardMinWidth = 210; // Increased from 150
+    cardMinWidth = 210;
     infoFontSize = 15;
     listMaxWidth = 600;
   } else if (screenWidth > 700) {
     cardWidth = '100%';
-    cardMaxWidth = 1300; // Increased from 900
+    cardMaxWidth = 1300;
     listMaxWidth = 1600;
   }
 
@@ -154,12 +156,12 @@ const TenantList = ({ tenants, onActionComplete }) => {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#f7f8fa' }} contentContainerStyle={{ flexGrow: 1 }}>
-      <View style={[styles.listOuter, { maxWidth: listMaxWidth, alignSelf: 'center', width: '100%' }]}> 
+      <View style={[styles.listOuter, { maxWidth: listMaxWidth, alignSelf: 'center', width: '100%' }]}>
         <View style={styles.gridContainer}>
           {rows.map((row, rowIndex) => (
             <View key={rowIndex} style={styles.row}>
               {row.map((item, colIndex) => (
-                <View key={item.id} style={[styles.col, { flex: 1 / numColumns }]}> 
+                <View key={item.id} style={[styles.col, { flex: 1 / numColumns }]}>
                   {renderTenant({ item })}
                 </View>
               ))}
@@ -177,7 +179,7 @@ const TenantList = ({ tenants, onActionComplete }) => {
   );
 };
 
-
+//Custom sytlesheet
 const styles = StyleSheet.create({
   listOuter: {
     flex: 1,
@@ -203,8 +205,8 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   card: {
-    marginBottom: 28, // Increased spacing
-    borderRadius: 22, // Slightly larger corners
+    marginBottom: 28,
+    borderRadius: 22,
     overflow: 'hidden',
     backgroundColor: '#fff',
     shadowColor: '#000',
@@ -214,8 +216,8 @@ const styles = StyleSheet.create({
     elevation: 5,
     transitionDuration: '150ms',
     alignSelf: 'center',
-    paddingVertical: 8, // Add vertical padding for more space
-    paddingHorizontal: 8, // Add horizontal padding for more space
+    paddingVertical: 8,
+    paddingHorizontal: 8,
   },
   statusBadge: {
     alignSelf: 'center',

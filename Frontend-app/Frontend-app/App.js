@@ -7,7 +7,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import MainNavigator from './navigation/MainNavigator';
 import { AuthProvider } from './context/AuthContext';
 
-// Simple Error Boundary Component
+//Error Boundary Component
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);

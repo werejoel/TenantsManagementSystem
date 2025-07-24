@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { View, Text, StyleSheet, Button, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Alert } from 'react-native';
+import { Button, Divider, useTheme, FAB } from 'react-native-paper';
 import TenantList from '../components/TenantList';
 import { fetchTenants } from '../services/tenantService';
 import { AuthContext } from '../context/AuthContext';
@@ -26,20 +27,29 @@ const TenantsScreen = ({ navigation }) => {
     loadTenants();
   }, [user]);
 
+  const theme = useTheme();
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tenants</Text>
+      <View style={styles.headerCard}>
+        <Text style={styles.title}>Tenants</Text>
+      </View>
+      <Divider style={styles.divider} />
       {loading ? (
-        <ActivityIndicator size="large" color="#000" />
+        <ActivityIndicator size="large" color={theme.colors.primary} style={{ marginTop: 40 }} />
       ) : (
         <TenantList tenants={tenants} onActionComplete={loadTenants} />
       )}
-      <Button title="Add Tenant" onPress={async () => {
-        const unsubscribe = navigation.addListener('focus', loadTenants);
-        navigation.navigate('AddTenant');
-        // Remove listener after navigation
-        setTimeout(() => unsubscribe(), 1000);
-      }} />
+      <FAB
+        style={styles.fab}
+        icon="plus"
+        label="Add Tenant"
+        onPress={async () => {
+          const unsubscribe = navigation.addListener('focus', loadTenants);
+          navigation.navigate('AddTenant');
+          setTimeout(() => unsubscribe(), 1000);
+        }}
+        color="#fff"
+      />
     </View>
   );
 };
@@ -47,13 +57,44 @@ const TenantsScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding: 0,
+    backgroundColor: '#f7f8fa',
+  },
+  headerCard: {
     backgroundColor: '#fff',
+    borderRadius: 18,
+    marginTop: 18,
+    marginHorizontal: 18,
+    paddingVertical: 18,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 16,
+    color: '#222',
+    letterSpacing: 0.5,
+  },
+  divider: {
+    marginTop: 10,
+    marginBottom: 8,
+    backgroundColor: '#e0e0e0',
+    height: 1.5,
+    marginHorizontal: 18,
+  },
+  fab: {
+    position: 'absolute',
+    right: 24,
+    bottom: 32,
+    backgroundColor: '#1976d2',
+    elevation: 4,
+    borderRadius: 30,
+    paddingHorizontal: 12,
   },
 });
 

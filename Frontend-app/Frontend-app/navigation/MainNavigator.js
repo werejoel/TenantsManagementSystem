@@ -18,13 +18,13 @@ import PaymentsScreen from '../screens/PaymentsScreen';
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import RegisterScreen from '../screens/RegisterScreen';
+import EditTenantScreen from '../screens/EditTenantScreen';
+import AssignHouseScreen from '../screens/AssignHouseScreen';
 
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
 
-import EditTenantScreen from '../screens/EditTenantScreen';
-import AssignHouseScreen from '../screens/AssignHouseScreen';
 
 function TenantsStack() {
   return (

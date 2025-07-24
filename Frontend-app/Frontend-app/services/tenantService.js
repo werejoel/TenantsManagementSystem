@@ -2,7 +2,6 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:8000/api/tenants/';
 
-
 // FR-006: Get all tenants
 export const fetchTenants = async (token) => {
   try {
