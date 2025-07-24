@@ -237,6 +237,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
+    alignSelf: 'center', // Center vertically in the cell
+    marginVertical: 0, // Remove any extra vertical margin
   },
   actionBtn: {
     minWidth: 135,
