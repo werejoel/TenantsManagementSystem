@@ -88,11 +88,12 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
+
+# Use only JWTAuthentication for DRF
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES":[
+    'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        "rest_framework.authentication.TokenAuthentication",
-    ]
+    ),
 }
 
 

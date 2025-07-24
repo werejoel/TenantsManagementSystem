@@ -36,11 +36,3 @@ class PaymentAdmin(admin.ModelAdmin):
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
     
 
-    
-
-
-
-
-
-
-# Register your models here.
