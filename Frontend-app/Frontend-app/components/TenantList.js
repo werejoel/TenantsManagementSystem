@@ -46,24 +46,24 @@ const TenantList = ({ tenants, onActionComplete }) => {
   
   // card width and font size
   let cardWidth = '100%';
-  let cardMaxWidth = 800;
-  let cardMinWidth = 180;
-  let infoFontSize = 15;
-  let listMaxWidth = 1000;
+  let cardMaxWidth = 1100; // Increased from 800
+  let cardMinWidth = 260;  // Increased from 180
+  let infoFontSize = 16;
+  let listMaxWidth = 1400; // Increased from 1000
   if (screenWidth < 350) {
     cardWidth = '99%';
-    cardMinWidth = 120;
-    infoFontSize = 13;
-    listMaxWidth = 340;
-  } else if (screenWidth < 420) {
-    cardWidth = '98%';
-    cardMinWidth = 150;
+    cardMinWidth = 180; // Increased from 120
     infoFontSize = 14;
     listMaxWidth = 400;
+  } else if (screenWidth < 420) {
+    cardWidth = '98%';
+    cardMinWidth = 210; // Increased from 150
+    infoFontSize = 15;
+    listMaxWidth = 600;
   } else if (screenWidth > 700) {
     cardWidth = '100%';
-    cardMaxWidth = 900;
-    listMaxWidth = 1200;
+    cardMaxWidth = 1300; // Increased from 900
+    listMaxWidth = 1600;
   }
 
   const renderTenant = ({ item }) => (
@@ -111,6 +111,8 @@ const TenantList = ({ tenants, onActionComplete }) => {
           icon="pencil"
           compact
           contentStyle={{ height: 38 }}
+          buttonColor={theme.colors.primary}
+          textColor="#fff"
         >
           Edit
         </Button>
@@ -135,6 +137,7 @@ const TenantList = ({ tenants, onActionComplete }) => {
           icon="home"
           compact
           contentStyle={{ height: 38 }}
+          textColor={theme.colors.primary}
         >
           Assign House
         </Button>
@@ -200,17 +203,19 @@ const styles = StyleSheet.create({
     minWidth: 0,
   },
   card: {
-    marginBottom: 18,
-    borderRadius: 18,
+    marginBottom: 28, // Increased spacing
+    borderRadius: 22, // Slightly larger corners
     overflow: 'hidden',
     backgroundColor: '#fff',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.10,
-    shadowRadius: 10,
-    elevation: 4,
+    shadowOpacity: 0.12,
+    shadowRadius: 14,
+    elevation: 5,
     transitionDuration: '150ms',
     alignSelf: 'center',
+    paddingVertical: 8, // Add vertical padding for more space
+    paddingHorizontal: 8, // Add horizontal padding for more space
   },
   statusBadge: {
     alignSelf: 'center',
