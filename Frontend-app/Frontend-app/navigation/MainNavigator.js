@@ -14,6 +14,7 @@ import DocumentsScreen from '../screens/DocumentsScreen';
 import ReportsScreen from '../screens/ReportsScreen';
 import LoginScreen from '../screens/LoginScreen';
 import HousesScreen from '../screens/HousesScreen';
+import HouseList from '../screens/HouseList';
 import PaymentsScreen from '../screens/PaymentsScreen';
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
@@ -56,15 +57,11 @@ function TenantsStack() {
 const HousesStack = () => (
   <Stack.Navigator>
     <Stack.Screen 
-      name="HousesMain" 
-      component={HousesScreen} 
+      name="HouseList" 
+      component={HouseList} 
       options={{ title: 'Houses' }}
     />
-    <Stack.Screen 
-      name="AddHouse" 
-      component={AddHouseScreen}
-      options={{ title: 'Add House' }}
-    />
+    {/* You can add more screens for house details if needed */}
   </Stack.Navigator>
 );
 
