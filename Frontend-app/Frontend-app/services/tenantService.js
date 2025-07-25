@@ -2,6 +2,26 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:8000/api/tenants/';
 
+export const activateTenant = async (id, token) => {
+  try {
+    const response = await axios.patch(
+      `${API_URL}${id}/activate/`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Activate tenant error:', error?.response?.data || error.message);
+    throw error;
+  }
+};
+
+
 // FR-006: Get all tenants
 export const fetchTenants = async (token) => {
   try {

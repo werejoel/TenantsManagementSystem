@@ -1,3 +1,11 @@
+# Activation endpoint for tenants
+from rest_framework.views import APIView
+from rest_framework import permissions
+from rest_framework.decorators import action
+from rest_framework.generics import RetrieveUpdateDestroyAPIView, UpdateAPIView
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import JSONParser
 from django.shortcuts import render, redirect
 from django.db.models import Sum, Q
 from .models import Payment, Tenant, House
@@ -15,6 +23,17 @@ from rest_framework import status
 from .serializers import TenantSerializer, PaymentSerializer, HouseSerializer
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, BasePermission
+
+class TenantActivateView(APIView):
+    def patch(self, request, pk):
+        try:
+            tenant = Tenant.objects.get(pk=pk)
+            tenant.status = 'active'
+            tenant.save()
+            return Response({'status': 'activated'}, status=status.HTTP_200_OK)
+        except Tenant.DoesNotExist:
+            return Response({'error': 'Tenant not found'}, status=status.HTTP_404_NOT_FOUND)
+
 class IsManagerOrReadOnly(BasePermission):
     """Allow only users with role 'manager' to POST (add tenants)."""
     def has_permission(self, request, view):
@@ -146,12 +165,6 @@ class HouseListCreateView(generics.ListCreateAPIView):  # Add this class
     serializer_class = HouseSerializer
 
 
-from rest_framework import permissions
-from rest_framework.decorators import action
-from rest_framework.generics import RetrieveUpdateDestroyAPIView, UpdateAPIView
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.parsers import JSONParser
 
 # FR-007, FR-008: Retrieve, update, deactivate tenant
 class TenantRetrieveUpdateDeactivateView(RetrieveUpdateDestroyAPIView):
@@ -159,9 +172,17 @@ class TenantRetrieveUpdateDeactivateView(RetrieveUpdateDestroyAPIView):
     serializer_class = TenantSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+
     def patch(self, request, *args, **kwargs):
         # Allow partial update
         return self.partial_update(request, *args, **kwargs)
+
+    # Custom endpoint for activating a tenant
+    def activate(self, request, *args, **kwargs):
+        tenant = self.get_object()
+        tenant.status = 'active'
+        tenant.save()
+        return Response({'status': 'activated'}, status=status.HTTP_200_OK)
 
     def delete(self, request, *args, **kwargs):
         # Deactivate instead of delete

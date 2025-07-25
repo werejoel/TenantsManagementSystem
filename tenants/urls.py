@@ -2,7 +2,7 @@ from django.urls import path
 from .views import DashboardAPIView, dashboard_redirect, payment_report, tenant_balance_report
 from .views import payment_report_pdf, tenant_balance_pdf
 from .views import TenantListCreateView, PaymentListCreateView, HouseListCreateView, \
-    TenantRetrieveUpdateDeactivateView, AssignTenantToHouseView, TenantAssignedHouseView
+    TenantRetrieveUpdateDeactivateView, AssignTenantToHouseView, TenantAssignedHouseView, TenantActivateView
 
 urlpatterns = [
     path('', dashboard_redirect, name='dashboard_redirect'),
@@ -16,6 +16,7 @@ urlpatterns = [
     path('houses/', HouseListCreateView.as_view(), name='house-list'),
     # Tenant management endpoints
     path('tenant/<int:pk>/', TenantRetrieveUpdateDeactivateView.as_view(), name='tenant-detail'),  # GET, PATCH, DELETE (deactivate)
+    path('tenant/<int:pk>/activate/', TenantActivateView.as_view(), name='tenant-activate'),  # PATCH
     path('tenant/<int:pk>/assign-house/', AssignTenantToHouseView.as_view(), name='tenant-assign-house'),  # PATCH
     path('my-house/', TenantAssignedHouseView.as_view(), name='tenant-my-house'),  # GET
     ]

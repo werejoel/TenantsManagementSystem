@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { ScrollView, View, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AuthContext } from '../context/AuthContext';
-import { deactivateTenant } from '../services/tenantService';
+import { deactivateTenant, activateTenant } from '../services/tenantService';
 import { Text, Button, Avatar, useTheme, Badge, Divider } from 'react-native-paper';
 import { Dimensions } from 'react-native';
 
@@ -14,6 +14,7 @@ const TenantList = ({ tenants, onActionComplete }) => {
   const [deactivatingId, setDeactivatingId] = React.useState(null);
   const screenWidth = Dimensions.get('window').width;
 
+
   const handleDeactivate = async (id) => {
     setDeactivatingId(id);
     try {
@@ -21,7 +22,23 @@ const TenantList = ({ tenants, onActionComplete }) => {
       Alert.alert('Success', 'Tenant deactivated successfully');
       if (onActionComplete) onActionComplete();
     } catch (error) {
-      Alert.alert('Error', 'Failed to deactivate tenant');
+      console.error('Deactivate tenant error:', error?.response?.data || error.message);
+      Alert.alert('Error', `Failed to deactivate tenant: ${error?.response?.data?.detail || error.message}`);
+    } finally {
+      setDeactivatingId(null);
+    }
+  };
+
+
+  const handleActivate = async (id) => {
+    setDeactivatingId(id);
+    try {
+      await activateTenant(id, user?.token);
+      Alert.alert('Success', 'Tenant activated successfully');
+      if (onActionComplete) onActionComplete();
+    } catch (error) {
+      console.error('Activate tenant error:', error?.response?.data || error.message);
+      Alert.alert('Error', `Failed to activate tenant: ${error?.response?.data?.detail || error.message}`);
     } finally {
       setDeactivatingId(null);
     }
@@ -74,19 +91,34 @@ const TenantList = ({ tenants, onActionComplete }) => {
         >
           Edit
         </Button>
-        <Button
-          mode="contained"
-          onPress={() => handleDeactivate(item.id)}
-          style={[styles.actionBtn, styles.deactivateBtn]}
-          icon="account-cancel"
-          loading={deactivatingId === item.id}
-          disabled={deactivatingId === item.id || item.status === 'inactive'}
-          compact={false}
-          contentStyle={styles.buttonContent}
-          labelStyle={styles.buttonLabel}
-        >
-          {deactivatingId === item.id ? 'Deactivating...' : 'Deactivate'}
-        </Button>
+        {item.status === 'active' && (
+          <Button
+            mode="contained"
+            onPress={() => handleDeactivate(item.id)}
+            style={[styles.actionBtn, styles.deactivateBtn]}
+            icon="account-cancel"
+            loading={deactivatingId === item.id}
+            disabled={deactivatingId === item.id}
+            compact={false}
+            contentStyle={styles.buttonContent}
+            labelStyle={styles.buttonLabel}
+          >
+            {deactivatingId === item.id ? 'Deactivating...' : 'Deactivate'}
+          </Button>
+        )}
+        {item.status === 'inactive' && (
+          <Button
+            mode="contained"
+            onPress={() => handleActivate(item.id)}
+            style={[styles.actionBtn, styles.activateBtn]}
+            icon="check"
+            compact={false}
+            contentStyle={styles.buttonContent}
+            labelStyle={styles.buttonLabel}
+          >
+            Activate
+          </Button>
+        )}
         <Button
           mode="outlined"
           onPress={() => handleAssignHouse(item)}
@@ -258,6 +290,9 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     minWidth: 155,
     maxWidth: 190,
+  },
+  activateBtn: {
+    backgroundColor: '#28a745', // Green for activate
   },
   buttonContent: {
     height: 42, 
