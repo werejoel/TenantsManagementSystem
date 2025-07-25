@@ -374,11 +374,11 @@ const HouseListContent = () => {
                 {house.model}
               </Text>
             </View>
-            <View style={dynamicStyles.tableCell}>
+            <View style={[dynamicStyles.tableCell, { justifyContent: 'center', alignItems: 'center', flexDirection: 'row', height: '100%' }]}> 
               <Badge 
                 style={[
                   dynamicStyles.statusBadge,
-                  { backgroundColor: house.is_occupied ? COLORS.badgeOccupied : COLORS.badgeVacant, color: '#fff' }
+                  { backgroundColor: house.is_occupied ? COLORS.badgeOccupied : COLORS.badgeVacant, color: '#fff', alignSelf: 'center' }
                 ]}
               >
                 {house.is_occupied ? 'Occupied' : 'Vacant'}
@@ -670,13 +670,13 @@ const createStyles = (theme, COLORS) => StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 6,
     backgroundColor: COLORS.card,
-    borderRadius: 14,
-    marginHorizontal: 10,
-    marginTop: 10,
-    marginBottom: 10,
+    borderRadius: 12,
+    marginHorizontal: 4,
+    marginTop: 6,
+    marginBottom: 8,
     shadowColor: '#000',
     shadowOpacity: 0.08,
     shadowRadius: 8,
@@ -745,7 +745,7 @@ const createStyles = (theme, COLORS) => StyleSheet.create({
   },
   sectionBlock: {
     flex: 1,
-    paddingHorizontal: 16,
+    paddingHorizontal: 6,
   },
   content: {
     flex: 1,
@@ -777,12 +777,15 @@ const createStyles = (theme, COLORS) => StyleSheet.create({
   },
   cardContainer: {
     paddingBottom: 80,
+    paddingHorizontal: 2,
   },
   houseCard: {
-    marginBottom: 16,
+    marginBottom: 12,
     elevation: 2,
-    borderRadius: 18,
+    borderRadius: 14,
     backgroundColor: COLORS.card,
+    minWidth: 0,
+    maxWidth: '100%',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -832,11 +835,13 @@ const createStyles = (theme, COLORS) => StyleSheet.create({
     marginBottom: 80,
     borderRadius: 8,
     overflow: 'hidden',
+    minWidth: 0,
+    maxWidth: '100%',
   },
   tableHeader: {
     flexDirection: 'row',
     backgroundColor: COLORS.primary,
-    paddingVertical: 12,
+    paddingVertical: 8,
     borderTopLeftRadius: 8,
     borderTopRightRadius: 8,
   },
@@ -854,7 +859,7 @@ const createStyles = (theme, COLORS) => StyleSheet.create({
   },
   tableRow: {
     flexDirection: 'row',
-    paddingVertical: 12,
+    paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.divider,
   },
@@ -867,6 +872,8 @@ const createStyles = (theme, COLORS) => StyleSheet.create({
   tableCell: {
     flex: 1,
     alignItems: 'center',
+    minWidth: 0,
+    maxWidth: '100%',
   },
   tableCellContent: {
     flexDirection: 'row',
