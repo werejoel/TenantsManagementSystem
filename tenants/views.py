@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import JSONParser
 from django.shortcuts import render, redirect
 from django.db.models import Sum, Q
-from .models import Payment, Tenant, House
+from .models import Payment, Tenant, House, Charge
 from datetime import datetime
 from django.utils.dateparse import parse_date
 from django.http import HttpResponse
@@ -20,7 +20,11 @@ from rest_framework import permissions
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import TenantSerializer, PaymentSerializer, HouseSerializer
+from .serializers import TenantSerializer, PaymentSerializer, HouseSerializer, ChargeSerializer
+
+class ChargeListCreateView(generics.ListCreateAPIView):
+    queryset = Charge.objects.all()
+    serializer_class = ChargeSerializer
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, BasePermission
 

@@ -44,6 +44,10 @@ const TenantDashboardScreen = () => {
     fetchMyPayments();
   }, [user]);
 
+  // Calculate current balance and arrears
+  const currentBalance = payments.length > 0 ? payments[0].balance_due : 0;
+  const overpayment = payments.length > 0 ? payments[0].overpayment : 0;
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.headerCard}>
@@ -56,35 +60,33 @@ const TenantDashboardScreen = () => {
       </View>
       <View style={styles.statsRow}>
         <View style={styles.statCard}>
-          <MaterialCommunityIcons name="home-city" size={32} color="#4f8cff" />
-          <Text style={styles.statLabel}>My House</Text>
-          {loading ? (
-            <ActivityIndicator size="small" color="#4f8cff" />
-          ) : house && house.name ? (
-            <>
-              <Text style={styles.statValue}>{house.name}</Text>
-              <Text style={styles.statLabel}>Location: {house.location}</Text>
-              <Text style={styles.statLabel}>Price: UGX {house.price}</Text>
-            </>
-          ) : (
-            <Text style={styles.statValue}>No house assigned</Text>
-          )}
+          <MaterialCommunityIcons name="cash" size={32} color="#4f8cff" />
+          <Text style={styles.statLabel}>Current Balance</Text>
+          <Text style={styles.statValue}>UGX {currentBalance}</Text>
         </View>
         <View style={styles.statCard}>
-          <MaterialCommunityIcons name="cash-multiple" size={32} color="#4f8cff" />
-          <Text style={styles.statLabel}>My Payments</Text>
-          {paymentsLoading ? (
-            <ActivityIndicator size="small" color="#4f8cff" />
-          ) : payments.length > 0 ? (
-            <>
-              <Text style={styles.statValue}>Total Paid: UGX {payments.reduce((sum, p) => sum + (p.amount_paid || 0), 0)}</Text>
-              <Text style={styles.statLabel}>Last Payment: UGX {payments[0].amount_paid} on {payments[0].payment_date}</Text>
-              <Text style={styles.statLabel}>Balance Due: UGX {payments[0].balance_due}</Text>
-            </>
-          ) : (
-            <Text style={styles.statValue}>No payments found</Text>
-          )}
+          <MaterialCommunityIcons name="cash-refund" size={32} color="#4f8cff" />
+          <Text style={styles.statLabel}>Overpayment</Text>
+          <Text style={styles.statValue}>UGX {overpayment}</Text>
         </View>
+      </View>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Payment History</Text>
+        {paymentsLoading ? (
+          <ActivityIndicator size="small" color="#4f8cff" />
+        ) : payments.length === 0 ? (
+          <Text>No payments found.</Text>
+        ) : (
+          payments.map((p, idx) => (
+            <View key={p.id || idx} style={styles.paymentItem}>
+              <Text>Date: {p.payment_date}</Text>
+              <Text>Amount Paid: UGX {p.amount_paid}</Text>
+              <Text>Period: {p.payment_start_date} to {p.payment_end_date}</Text>
+              <Text>Balance Due: UGX {p.balance_due}</Text>
+              <Text>Overpayment: UGX {p.overpayment}</Text>
+            </View>
+          ))
+        )}
       </View>
     </ScrollView>
   );
