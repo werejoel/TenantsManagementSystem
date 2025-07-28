@@ -135,9 +135,15 @@ const PaymentList = ({ payments, navigation }) => {
         case 'amount':
           comparison = (b.amount_paid || 0) - (a.amount_paid || 0);
           break;
-        case 'tenant':
-          comparison = (a.tenant_name || a.tenant || '').localeCompare(b.tenant_name || b.tenant || '');
+        case 'tenant': {
+          // Ensure both values are strings for localeCompare
+          const aTenant = a.tenant_name || a.tenant || '';
+          const bTenant = b.tenant_name || b.tenant || '';
+          const aStr = typeof aTenant === 'string' ? aTenant : String(aTenant);
+          const bStr = typeof bTenant === 'string' ? bTenant : String(bTenant);
+          comparison = aStr.localeCompare(bStr);
           break;
+        }
         case 'status':
           comparison = getStatus(a).priority - getStatus(b).priority;
           break;
@@ -726,7 +732,7 @@ const PaymentList = ({ payments, navigation }) => {
           )}
         </View>
 
-        {/* Payment List in Tabular Format */}
+        {/* Payment List*/}
         {filteredAndSortedPayments.length === 0 ? (
           <View style={styles.emptyContainer}>
             <MaterialCommunityIcons name="file-document-outline" size={64} color="#d0d0d0" />
