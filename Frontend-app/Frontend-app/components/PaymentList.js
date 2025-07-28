@@ -11,19 +11,20 @@ import {
   Modal,
   Alert,
   Dimensions,
-  ActivityIndicator,
+  Keyboard,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const PaymentList = ({ payments }) => {
+  // State variables
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
   const [expanded, setExpanded] = useState({});
   const [filterStatus, setFilterStatus] = useState('all');
-  const [viewMode, setViewMode] = useState('list'); // Changed to 'list' and 'grid'
+  const [viewMode, setViewMode] = useState('list');
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
@@ -170,7 +171,6 @@ const PaymentList = ({ payments }) => {
     setSelectedPayments([]);
   };
 
-  // Quick filter presets
   const applyQuickFilter = (preset) => {
     switch (preset) {
       case 'thisMonth':
@@ -192,7 +192,6 @@ const PaymentList = ({ payments }) => {
     setShowFilters(false);
   };
 
-  // Export functionality
   const exportPayments = () => {
     const selectedData = selectedPayments.length > 0
       ? payments.filter(p => selectedPayments.includes(p.id))
@@ -215,7 +214,6 @@ const PaymentList = ({ payments }) => {
     console.log(csvContent);
   };
 
-  // Bulk actions
   const handleBulkAction = (action) => {
     if (selectedPayments.length === 0) {
       Alert.alert('No Selection', 'Please select at least one payment');
@@ -234,16 +232,136 @@ const PaymentList = ({ payments }) => {
     }
   };
 
+  // UI Components
   const SummaryCard = ({ title, value, icon, color, bgColor, subtitle, onPress }) => (
-    <TouchableOpacity onPress={onPress} style={[styles.summaryCard, { borderTopColor: color, backgroundColor: bgColor }]}>
-      <View style={styles.summaryCardHeader}>
-        <MaterialCommunityIcons name={icon} size={24} color={color} />
-        <Text style={styles.summaryCardTitle}>{title}</Text>
+    <TouchableOpacity 
+      onPress={onPress} 
+      style={[styles.summaryCard, { backgroundColor: bgColor }]}
+      activeOpacity={0.9}
+    >
+      <View style={styles.summaryCardContent}>
+        <View style={[styles.summaryIconContainer, { backgroundColor: color + '22' }]}>
+          <MaterialCommunityIcons name={icon} size={20} color={color} />
+        </View>
+        <View style={styles.summaryTextContainer}>
+          <Text style={styles.summaryCardTitle}>{title}</Text>
+          <Text style={[styles.summaryCardValue, { color }]}>{value}</Text>
+        </View>
       </View>
-      <Text style={[styles.summaryCardValue, { color }]}>{value}</Text>
       {subtitle && <Text style={styles.summaryCardSubtitle}>{subtitle}</Text>}
     </TouchableOpacity>
   );
+
+  const PaymentCard = ({ item, isExpanded, onPress, onLongPress, isSelected, onSelect }) => {
+    const status = getStatus(item);
+
+    return (
+      <Animated.View style={{ opacity: fadeAnim, transform: [{ scale: fadeAnim }] }}>
+        <TouchableOpacity 
+          onPress={onPress} 
+          onLongPress={onLongPress} 
+          activeOpacity={0.9}
+        >
+          <View style={[
+            styles.card, 
+            { 
+              borderLeftWidth: 4,
+              borderLeftColor: status.color,
+              backgroundColor: isSelected ? status.bgColor : '#fff'
+            }
+          ]}>
+            <View style={styles.cardHeader}>
+              <TouchableOpacity 
+                onPress={onSelect} 
+                style={styles.checkboxContainer}
+              >
+                <MaterialCommunityIcons
+                  name={isSelected ? 'checkbox-marked-circle' : 'checkbox-blank-circle-outline'}
+                  size={22}
+                  color={isSelected ? status.color : '#ccc'}
+                />
+              </TouchableOpacity>
+              
+              <View style={styles.cardHeaderCenter}>
+                <Text style={styles.tenantName} numberOfLines={1}>{item.tenant_name || item.tenant}</Text>
+                <Text style={styles.houseName} numberOfLines={1}>{item.house_name || item.house}</Text>
+              </View>
+              
+              <View style={styles.cardHeaderRight}>
+                <View style={[styles.statusContainer, { backgroundColor: status.bgColor }]}>
+                  <MaterialCommunityIcons 
+                    name={status.icon} 
+                    size={14} 
+                    color={status.color} 
+                  />
+                  <Text style={[styles.status, { color: status.color }]}>{status.label}</Text>
+                </View>
+                <Text style={styles.date}>{item.payment_date}</Text>
+              </View>
+            </View>
+
+            <View style={styles.cardBody}>
+              <View style={styles.amountContainer}>
+                <Text style={styles.amountLabel}>Amount Paid:</Text>
+                <Text style={styles.amountValue}>UGX {item.amount_paid.toLocaleString()}</Text>
+              </View>
+              
+              <View style={styles.balanceContainer}>
+                {item.balance_due > 0 && (
+                  <View style={styles.balanceItem}>
+                    <Text style={styles.balanceLabel}>Balance:</Text>
+                    <Text style={styles.balanceValue}>UGX {item.balance_due.toLocaleString()}</Text>
+                  </View>
+                )}
+                {item.overpayment > 0 && (
+                  <View style={styles.balanceItem}>
+                    <Text style={styles.overpaymentLabel}>Overpayment:</Text>
+                    <Text style={styles.overpaymentValue}>UGX {item.overpayment.toLocaleString()}</Text>
+                  </View>
+                )}
+              </View>
+            </View>
+
+            {isExpanded && (
+              <View style={styles.expandedSection}>
+                <View style={styles.expandedRow}>
+                  <MaterialCommunityIcons name="credit-card" size={16} color="#4f8cff" />
+                  <Text style={styles.expandedText}>{item.payment_method || 'Not specified'}</Text>
+                </View>
+                <View style={styles.expandedRow}>
+                  <MaterialCommunityIcons name="barcode" size={16} color="#4f8cff" />
+                  <Text style={styles.expandedText}>{item.reference_number || 'Not provided'}</Text>
+                </View>
+                <View style={styles.expandedRow}>
+                  <MaterialCommunityIcons name="calendar-range" size={16} color="#4f8cff" />
+                  <Text style={styles.expandedText}>
+                    {item.payment_start_date} to {item.payment_end_date}
+                  </Text>
+                </View>
+                {item.notes && (
+                  <View style={styles.expandedRow}>
+                    <MaterialCommunityIcons name="note-text" size={16} color="#4f8cff" />
+                    <Text style={styles.expandedText}>{item.notes}</Text>
+                  </View>
+                )}
+              </View>
+            )}
+            
+            <TouchableOpacity 
+              onPress={() => toggleExpand(item.id)} 
+              style={styles.expandButton}
+            >
+              <MaterialCommunityIcons 
+                name={isExpanded ? 'chevron-up' : 'chevron-down'} 
+                size={20} 
+                color="#888" 
+              />
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  };
 
   const FilterModal = () => (
     <Modal
@@ -308,6 +426,7 @@ const PaymentList = ({ payments }) => {
                 placeholder="Start Date (YYYY-MM-DD)"
                 value={dateRange.start}
                 onChangeText={text => setDateRange(prev => ({ ...prev, start: text }))}
+                placeholderTextColor="#999"
               />
               <Text style={styles.dateRangeSeparator}>to</Text>
               <TextInput
@@ -315,6 +434,7 @@ const PaymentList = ({ payments }) => {
                 placeholder="End Date (YYYY-MM-DD)"
                 value={dateRange.end}
                 onChangeText={text => setDateRange(prev => ({ ...prev, end: text }))}
+                placeholderTextColor="#999"
               />
             </View>
 
@@ -326,6 +446,7 @@ const PaymentList = ({ payments }) => {
                 value={amountRange.min}
                 onChangeText={text => setAmountRange(prev => ({ ...prev, min: text }))}
                 keyboardType="numeric"
+                placeholderTextColor="#999"
               />
               <Text style={styles.amountRangeSeparator}>to</Text>
               <TextInput
@@ -334,6 +455,7 @@ const PaymentList = ({ payments }) => {
                 value={amountRange.max}
                 onChangeText={text => setAmountRange(prev => ({ ...prev, max: text }))}
                 keyboardType="numeric"
+                placeholderTextColor="#999"
               />
             </View>
           </ScrollView>
@@ -396,19 +518,19 @@ const PaymentList = ({ payments }) => {
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Amount Paid:</Text>
                   <Text style={[styles.detailValue, styles.amountValue]}>
-                    UGX {selectedPayment.amount_paid}
+                    UGX {selectedPayment.amount_paid.toLocaleString()}
                   </Text>
                 </View>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Balance Due:</Text>
                   <Text style={[styles.detailValue, { color: '#ff5252' }]}>
-                    UGX {selectedPayment.balance_due}
+                    UGX {selectedPayment.balance_due.toLocaleString()}
                   </Text>
                 </View>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Overpayment:</Text>
                   <Text style={[styles.detailValue, { color: '#4caf50' }]}>
-                    UGX {selectedPayment.overpayment}
+                    UGX {selectedPayment.overpayment.toLocaleString()}
                   </Text>
                 </View>
               </View>
@@ -435,7 +557,7 @@ const PaymentList = ({ payments }) => {
                   {selectedPayment.charges.map((charge, idx) => (
                     <View key={idx} style={styles.chargeDetailRow}>
                       <Text style={styles.chargeType}>{charge.charge_type}</Text>
-                      <Text style={styles.chargeAmount}>UGX {charge.amount}</Text>
+                      <Text style={styles.chargeAmount}>UGX {charge.amount.toLocaleString()}</Text>
                       <View style={[
                         styles.chargeStatus,
                         { backgroundColor: charge.is_paid ? '#4caf50' : '#ff5252' }
@@ -455,220 +577,114 @@ const PaymentList = ({ payments }) => {
     </Modal>
   );
 
-  const PaymentCard = ({ item, isExpanded, onPress, onLongPress, isSelected, onSelect }) => {
-    const status = getStatus(item);
-
-    return (
-      <Animated.View style={{ opacity: fadeAnim }}>
-        <TouchableOpacity onPress={onPress} onLongPress={onLongPress} activeOpacity={0.85}>
-          <View style={[styles.card, { borderLeftColor: status.color, backgroundColor: isSelected ? status.bgColor : '#fff' }]}>
-            <View style={styles.cardHeader}>
-              <View style={styles.statusContainer}>
-                <TouchableOpacity onPress={onSelect}>
-                  <MaterialCommunityIcons
-                    name={isSelected ? 'checkbox-marked' : 'checkbox-blank-outline'}
-                    size={20}
-                    color={status.color}
-                  />
-                </TouchableOpacity>
-                <MaterialCommunityIcons name={status.icon} size={20} color={status.color} style={styles.statusIcon} />
-                <Text style={[styles.status, { color: status.color }]}>{status.label}</Text>
-              </View>
-              <View style={styles.dateContainer}>
-                <Text style={styles.date}>{item.payment_date}</Text>
-                <MaterialCommunityIcons name={isExpanded ? 'chevron-up' : 'chevron-down'} size={18} color="#888" />
-              </View>
-            </View>
-
-            <View style={styles.cardBody}>
-              <Text style={styles.tenantName} numberOfLines={1}>{item.tenant_name || item.tenant}</Text>
-              <Text style={styles.houseName} numberOfLines={1}>{item.house_name || item.house}</Text>
-              <View style={styles.amountRow}>
-                <Text style={styles.amountLabel}>Amount Paid:</Text>
-                <Text style={styles.amountValue}>UGX {item.amount_paid}</Text>
-              </View>
-            </View>
-
-            <View style={styles.cardFooter}>
-              <View style={styles.balanceInfo}>
-                {item.balance_due > 0 && <Text style={styles.balanceText}>Balance: UGX {item.balance_due}</Text>}
-                {item.overpayment > 0 && <Text style={styles.overpaymentText}>Overpayment: UGX {item.overpayment}</Text>}
-              </View>
-            </View>
-
-            {isExpanded && (
-              <View style={styles.expandedSection}>
-                <View style={styles.expandedRow}>
-                  <MaterialCommunityIcons name="credit-card" size={16} color="#4f8cff" />
-                  <Text style={styles.expandedText}>{item.payment_method || 'N/A'}</Text>
-                </View>
-                <View style={styles.expandedRow}>
-                  <MaterialCommunityIcons name="barcode" size={16} color="#4f8cff" />
-                  <Text style={styles.expandedText}>{item.reference_number || 'N/A'}</Text>
-                </View>
-                <View style={styles.expandedRow}>
-                  <MaterialCommunityIcons name="calendar-range" size={16} color="#4f8cff" />
-                  <Text style={styles.expandedText}>{item.payment_start_date} to {item.payment_end_date}</Text>
-                </View>
-                {item.notes && (
-                  <View style={styles.expandedRow}>
-                    <MaterialCommunityIcons name="note-text" size={16} color="#4f8cff" />
-                    <Text style={styles.expandedText}>{item.notes}</Text>
-                  </View>
-                )}
-              </View>
-            )}
-          </View>
-        </TouchableOpacity>
-      </Animated.View>
-    );
-  };
-
   return (
     <View style={styles.container}>
-      <ScrollView
-        ref={scrollViewRef}
-        horizontal
-        showsHorizontalScrollIndicator Much more
-        style={styles.summaryScrollView}
-        contentContainerStyle={styles.summaryContainer}
-      >
-        <SummaryCard
-          title="Total Paid"
-          value={`UGX ${summaryData.totalPaid.toLocaleString()}`}
-          icon="cash-multiple"
-          color="#2196f3"
-          bgColor="#e6f0fa"
-          subtitle={`${summaryData.totalPayments} payments`}
-          onPress={() => applyQuickFilter('all')}
-        />
-        <SummaryCard
-          title="Arrears"
-          value={`UGX ${summaryData.totalArrears.toLocaleString()}`}
-          icon="alert-circle"
-          color="#ff5252"
-          bgColor="#ffe6e6"
-          subtitle={`${summaryData.statusCounts.arrears || 0} tenants`}
-          onPress={() => applyQuickFilter('overdue')}
-        />
-        <SummaryCard
-          title="Overpayment"
-          value={`UGX ${summaryData.totalOverpayment.toLocaleString()}`}
-          icon="cash-refund"
-          color="#4caf50"
-          bgColor="#e6f3e6"
-          subtitle={`${summaryData.statusCounts.overpaid || 0} tenants`}
-          onPress={() => setFilterStatus('overpaid')}
-        />
-        <SummaryCard
-          title="Average"
-          value={`UGX ${summaryData.averagePayment.toLocaleString()}`}
-          icon="chart-line"
-          color="#ff9800"
-          bgColor="#fff3e0"
-          subtitle="per payment"
-          onPress={() => applyQuickFilter('highValue')}
-        />
-      </ScrollView>
+      {/* Summary Cards */}
+      <View style={styles.summaryContainer}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.summaryScrollContent}
+        >
+          <SummaryCard
+            title="Total Paid"
+            value={`UGX ${summaryData.totalPaid.toLocaleString()}`}
+            icon="cash-multiple"
+            color="#4f8cff"
+            bgColor="#f0f6ff"
+            subtitle={`${summaryData.totalPayments} payments`}
+            onPress={() => applyQuickFilter('all')}
+          />
+          <SummaryCard
+            title="Arrears"
+            value={`UGX ${summaryData.totalArrears.toLocaleString()}`}
+            icon="alert-circle"
+            color="#ff6b6b"
+            bgColor="#fff0f0"
+            subtitle={`${summaryData.statusCounts.arrears || 0} tenants`}
+            onPress={() => applyQuickFilter('overdue')}
+          />
+          <SummaryCard
+            title="Overpayment"
+            value={`UGX ${summaryData.totalOverpayment.toLocaleString()}`}
+            icon="cash-refund"
+            color="#4caf50"
+            bgColor="#f0f9f0"
+            subtitle={`${summaryData.statusCounts.overpaid || 0} tenants`}
+            onPress={() => setFilterStatus('overpaid')}
+          />
+          <SummaryCard
+            title="Average"
+            value={`UGX ${Math.round(summaryData.averagePayment).toLocaleString()}`}
+            icon="chart-line"
+            color="#ff9800"
+            bgColor="#fff8e6"
+            subtitle="per payment"
+            onPress={() => applyQuickFilter('highValue')}
+          />
+        </ScrollView>
+      </View>
 
+      {/* Bulk Actions Bar */}
       {selectedPayments.length > 0 && (
         <View style={styles.bulkActionsContainer}>
           <Text style={styles.bulkActionsText}>
-            {selectedPayments.length} selected
+            {selectedPayments.length} payment{selectedPayments.length > 1 ? 's' : ''} selected
           </Text>
           <View style={styles.bulkActionsButtons}>
             <TouchableOpacity
-              style={styles.bulkActionBtn}
+              style={[styles.bulkActionBtn, styles.markPaidBtn]}
               onPress={() => handleBulkAction('markPaid')}
             >
-              <MaterialCommunityIcons name="check-circle" size={20} color="#4caf50" />
+              <MaterialCommunityIcons name="check-circle" size={18} color="#fff" />
               <Text style={styles.bulkActionText}>Mark Paid</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.bulkActionBtn}
+              style={[styles.bulkActionBtn, styles.reminderBtn]}
               onPress={() => handleBulkAction('sendReminder')}
             >
-              <MaterialCommunityIcons name="email" size={20} color="#4f8cff" />
-              <Text style={styles.bulkActionText}>Send Reminder</Text>
+              <MaterialCommunityIcons name="email" size={18} color="#fff" />
+              <Text style={styles.bulkActionText}>Remind</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.bulkActionBtn}
+              style={[styles.bulkActionBtn, styles.exportBtn]}
               onPress={exportPayments}
             >
-              <MaterialCommunityIcons name="download" size={20} color="#ff9800" />
+              <MaterialCommunityIcons name="download" size={18} color="#fff" />
               <Text style={styles.bulkActionText}>Export</Text>
             </TouchableOpacity>
           </View>
         </View>
       )}
 
+      {/* Search and Filter Section */}
       <View style={styles.controlsContainer}>
         <View style={styles.searchContainer}>
-          <MaterialCommunityIcons name="magnify" size={20} color="#888" style={styles.searchIcon} />
+          <MaterialCommunityIcons name="magnify" size={20} color="#7a7a7a" />
           <TextInput
             style={styles.searchInput}
             placeholder="Search payments..."
+            placeholderTextColor="#9a9a9a"
             value={search}
             onChangeText={setSearch}
-            placeholderTextColor="#888"
+            returnKeyType="search"
+            onSubmitEditing={Keyboard.dismiss}
           />
           {search.length > 0 && (
             <TouchableOpacity onPress={() => setSearch('')} style={styles.clearSearchBtn}>
-              <MaterialCommunityIcons name="close-circle" size={20} color="#888" />
+              <MaterialCommunityIcons name="close-circle" size={20} color="#ccc" />
             </TouchableOpacity>
           )}
         </View>
 
-        <View style={styles.actionButtonsRow}>
+        <View style={styles.actionsRow}>
           <TouchableOpacity
             style={styles.filterBtn}
             onPress={() => setShowFilters(true)}
           >
-            <MaterialCommunityIcons name="filter-variant" size={18} color="#4f8cff" />
+            <MaterialCommunityIcons name="filter-variant" size={20} color="#4f8cff" />
             <Text style={styles.filterBtnText}>Filters</Text>
           </TouchableOpacity>
-
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.sortButtonsContainer}
-          >
-            {[
-              { key: 'date', icon: 'calendar', label: 'Date' },
-              { key: 'amount', icon: 'currency-usd', label: 'Amount' },
-              { key: 'tenant', icon: 'account', label: 'Tenant' },
-              { key: 'status', icon: 'check-circle', label: 'Status' },
-              { key: 'balance', icon: 'alert-circle', label: 'Balance' }
-            ].map(sort => (
-              <TouchableOpacity
-                key={sort.key}
-                style={[
-                  styles.sortBtn,
-                  sortBy === sort.key && styles.sortBtnActive
-                ]}
-                onPress={() => toggleSort(sort.key)}
-              >
-                <MaterialCommunityIcons
-                  name={sort.icon}
-                  size={16}
-                  color={sortBy === sort.key ? '#fff' : '#4f8cff'}
-                />
-                <Text style={[
-                  styles.sortBtnText,
-                  sortBy === sort.key && styles.sortBtnTextActive
-                ]}>
-                  {sort.label}
-                </Text>
-                {sortBy === sort.key && (
-                  <MaterialCommunityIcons
-                    name={sortOrder === 'desc' ? 'chevron-down' : 'chevron-up'}
-                    size={14}
-                    color="#fff"
-                  />
-                )}
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
 
           <TouchableOpacity
             style={styles.viewModeBtn}
@@ -676,62 +692,116 @@ const PaymentList = ({ payments }) => {
           >
             <MaterialCommunityIcons
               name={viewMode === 'list' ? 'view-grid' : 'view-list'}
-              size={18}
+              size={22}
               color="#4f8cff"
             />
           </TouchableOpacity>
         </View>
       </View>
 
+      {/* Sort Controls */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.sortContainer}
+        contentContainerStyle={styles.sortContent}
+      >
+        {[
+          { key: 'date', icon: 'calendar', label: 'Date' },
+          { key: 'amount', icon: 'currency-usd', label: 'Amount' },
+          { key: 'tenant', icon: 'account', label: 'Tenant' },
+          { key: 'status', icon: 'check-circle', label: 'Status' },
+          { key: 'balance', icon: 'alert-circle', label: 'Balance' }
+        ].map(sort => (
+          <TouchableOpacity
+            key={sort.key}
+            style={[
+              styles.sortBtn,
+              sortBy === sort.key && styles.sortBtnActive
+            ]}
+            onPress={() => toggleSort(sort.key)}
+          >
+            <MaterialCommunityIcons
+              name={sort.icon}
+              size={16}
+              color={sortBy === sort.key ? '#fff' : '#4f8cff'}
+            />
+            <Text style={[
+              styles.sortBtnText,
+              sortBy === sort.key && styles.sortBtnTextActive
+            ]}>
+              {sort.label}
+            </Text>
+            {sortBy === sort.key && (
+              <MaterialCommunityIcons
+                name={sortOrder === 'desc' ? 'chevron-down' : 'chevron-up'}
+                size={14}
+                color="#fff"
+                style={styles.sortIcon}
+              />
+            )}
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
+      {/* Results Info */}
       <View style={styles.resultsInfo}>
         <Text style={styles.resultsText}>
           Showing {filteredAndSortedPayments.length} of {payments.length} payments
         </Text>
         {(search || filterStatus !== 'all' || dateRange.start || dateRange.end || amountRange.min || amountRange.max) && (
-          <TouchableOpacity onPress={clearFilters} style={styles.clearAllBtn}>
-            <Text style={styles.clearAllText}>Clear All</Text>
+          <TouchableOpacity onPress={clearFilters}>
+            <Text style={styles.clearAllText}>Clear filters</Text>
           </TouchableOpacity>
         )}
       </View>
 
-      <FlatList
-        data={filteredAndSortedPayments}
-        keyExtractor={item => item.id.toString()}
-        key={viewMode}
-        numColumns={viewMode === 'list' ? 1 : 2}
-        renderItem={({ item }) => (
-          <View style={[
-            styles.cardContainer,
-            viewMode === 'grid' && styles.gridCardContainer
-          ]}>
-            <PaymentCard
-              item={item}
-              isExpanded={expanded[item.id]}
-              onPress={() => toggleExpand(item.id)}
-              onLongPress={() => setSelectedPayment(item)}
-              isSelected={selectedPayments.includes(item.id)}
-              onSelect={() => {
-                setSelectedPayments(prev =>
-                  prev.includes(item.id)
-                    ? prev.filter(id => id !== item.id)
-                    : [...prev, item.id]
-                );
-              }}
-            />
-          </View>
-        )}
-        contentContainerStyle={styles.listContainer}
-        showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        ListEmptyComponent={() => (
-          <View style={styles.emptyContainer}>
-            <MaterialCommunityIcons name="file-document-outline" size={64} color="#ccc" />
-            <Text style={styles.emptyText}>No payments found</Text>
-            <Text style={styles.emptySubtext}>Try adjusting your search or filters</Text>
-          </View>
-        )}
-      />
+      {/* Payment List */}
+      {filteredAndSortedPayments.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <MaterialCommunityIcons name="file-document-outline" size={64} color="#d0d0d0" />
+          <Text style={styles.emptyText}>No payments found</Text>
+          <Text style={styles.emptySubtext}>Try adjusting your search or filters</Text>
+          <TouchableOpacity style={styles.emptyButton} onPress={clearFilters}>
+            <Text style={styles.emptyButtonText}>Clear all filters</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <FlatList
+          data={filteredAndSortedPayments}
+          keyExtractor={item => item.id.toString()}
+          key={viewMode}
+          numColumns={viewMode === 'list' ? 1 : 2}
+          renderItem={({ item }) => (
+            <View style={viewMode === 'grid' ? styles.gridCardContainer : styles.listCardContainer}>
+              <PaymentCard
+                item={item}
+                isExpanded={expanded[item.id]}
+                onPress={() => toggleExpand(item.id)}
+                onLongPress={() => setSelectedPayment(item)}
+                isSelected={selectedPayments.includes(item.id)}
+                onSelect={() => {
+                  setSelectedPayments(prev =>
+                    prev.includes(item.id)
+                      ? prev.filter(id => id !== item.id)
+                      : [...prev, item.id]
+                  );
+                }}
+              />
+            </View>
+          )}
+          contentContainerStyle={styles.listContainer}
+          showsVerticalScrollIndicator={false}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+        />
+      )}
 
+      {/* Add Payment FAB */}
+      <TouchableOpacity style={styles.fab} onPress={() => Alert.alert('Add Payment', 'Add payment functionality')}>
+        <MaterialCommunityIcons name="plus" size={28} color="white" />
+      </TouchableOpacity>
+
+      {/* Modals */}
       <FilterModal />
       <PaymentDetailModal />
     </View>
@@ -744,62 +814,70 @@ const styles = StyleSheet.create({
     backgroundColor: '#f8faff',
     paddingTop: 16,
   },
-  summaryScrollView: {
-    marginBottom: 16,
-  },
   summaryContainer: {
     paddingHorizontal: 16,
-    paddingVertical: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
+    marginBottom: 16,
+  },
+  summaryScrollContent: {
+    paddingBottom: 8,
   },
   summaryCard: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 18,
-    marginRight: 16,
-    minWidth: SCREEN_WIDTH * 0.42,
-    borderTopWidth: 4,
+    borderRadius: 16,
+    padding: 16,
+    width: SCREEN_WIDTH * 0.7,
+    marginRight: 12,
+    elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowRadius: 4,
   },
-  summaryCardHeader: {
+  summaryCardContent: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 8,
   },
+  summaryIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  summaryTextContainer: {
+    flex: 1,
+  },
   summaryCardTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#666',
-    marginLeft: 8,
+    color: '#5a5a5a',
+    marginBottom: 4,
   },
   summaryCardValue: {
     fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 4,
+    fontWeight: '700',
   },
   summaryCardSubtitle: {
     fontSize: 12,
     color: '#888',
+    marginTop: 4,
   },
   bulkActionsContainer: {
+    backgroundColor: '#e3f2fd',
+    padding: 12,
+    marginHorizontal: 16,
+    borderRadius: 12,
+    marginBottom: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 12,
-    backgroundColor: '#e3eaff',
-    borderRadius: 12,
-    marginHorizontal: 16,
-    marginBottom: 12,
+    elevation: 2,
   },
   bulkActionsText: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
-    color: '#333',
+    color: '#2c3e50',
   },
   bulkActionsButtons: {
     flexDirection: 'row',
@@ -807,70 +885,88 @@ const styles = StyleSheet.create({
   bulkActionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginLeft: 8,
+  },
+  markPaidBtn: {
+    backgroundColor: '#4caf50',
+  },
+  reminderBtn: {
+    backgroundColor: '#2196f3',
+  },
+  exportBtn: {
+    backgroundColor: '#ff9800',
   },
   bulkActionText: {
+    color: 'white',
+    fontWeight: '600',
     marginLeft: 4,
     fontSize: 14,
-    color: '#333',
   },
   controlsContainer: {
+    flexDirection: 'row',
     paddingHorizontal: 16,
-    marginBottom: 16,
+    marginBottom: 12,
+    alignItems: 'center',
   },
   searchContainer: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: 'white',
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  searchIcon: {
+    paddingVertical: 10,
     marginRight: 12,
+    elevation: 1,
   },
   searchInput: {
     flex: 1,
     fontSize: 16,
     color: '#333',
+    marginLeft: 8,
   },
   clearSearchBtn: {
     padding: 4,
   },
-  actionButtonsRow: {
+  actionsRow: {
     flexDirection: 'row',
-    alignItems: 'center',
   },
   filterBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#e3eaff',
-    borderRadius: 10,
+    backgroundColor: '#e3f2fd',
+    borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 10,
-    marginRight: 12,
   },
   filterBtnText: {
     marginLeft: 6,
-    color: '#4f8cff',
+    color: '#2196f3',
     fontWeight: '600',
-    fontSize: 14,
+    fontSize: 15,
   },
-  sortButtonsContainer: {
-    flex: 1,
+  viewModeBtn: {
+    padding: 10,
+    backgroundColor: '#e3f2fd',
+    borderRadius: 12,
+    marginLeft: 10,
+  },
+  sortContainer: {
+    marginBottom: 12,
+    paddingHorizontal: 16,
+  },
+  sortContent: {
+    paddingBottom: 4,
   },
   sortBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f0f4ff',
-    borderRadius: 10,
-    paddingHorizontal: 12,
+    backgroundColor: '#edf4ff',
+    borderRadius: 20,
+    paddingHorizontal: 16,
     paddingVertical: 8,
     marginRight: 8,
   },
@@ -878,24 +974,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#4f8cff',
   },
   sortBtnText: {
-    marginLeft: 4,
+    marginLeft: 6,
     color: '#4f8cff',
     fontWeight: '600',
-    fontSize: 12,
-    marginRight: 2,
+    fontSize: 14,
   },
   sortBtnTextActive: {
     color: '#fff',
   },
-  viewModeBtn: {
-    padding: 10,
-    backgroundColor: '#e3eaff',
-    borderRadius: 10,
+  sortIcon: {
+    marginLeft: 4,
   },
   resultsInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: 16,
     marginBottom: 8,
   },
@@ -904,12 +996,8 @@ const styles = StyleSheet.create({
     color: '#666',
     fontWeight: '500',
   },
-  clearAllBtn: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
   clearAllText: {
-    color: '#4f8cff',
+    color: '#ff6b6b',
     fontWeight: '600',
     fontSize: 14,
   },
@@ -917,106 +1005,119 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 20,
   },
-  cardContainer: {
-    marginBottom: 8,
+  listCardContainer: {
+    marginBottom: 12,
   },
   gridCardContainer: {
-    width: (SCREEN_WIDTH - 48) / 2,
-    marginHorizontal: 8,
+    width: (SCREEN_WIDTH - 40) / 2,
+    margin: 6,
   },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 18,
-    padding: 18,
-    borderLeftWidth: 4,
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 16,
+    elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowRadius: 6,
+    overflow: 'hidden',
   },
   cardHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: 12,
+  },
+  checkboxContainer: {
+    marginRight: 10,
+    padding: 4,
+  },
+  cardHeaderCenter: {
+    flex: 1,
+  },
+  tenantName: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#2c3e50',
+    marginBottom: 2,
+  },
+  houseName: {
+    fontSize: 14,
+    color: '#7f8c8d',
+  },
+  cardHeaderRight: {
+    alignItems: 'flex-end',
   },
   statusContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  statusIcon: {
-    marginLeft: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginBottom: 6,
   },
   status: {
-    fontWeight: 'bold',
-    fontSize: 14,
-    marginLeft: 6,
-  },
-  dateContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    fontWeight: '600',
+    fontSize: 12,
+    marginLeft: 4,
   },
   date: {
-    color: '#888',
     fontSize: 12,
+    color: '#95a5a6',
     fontWeight: '500',
-    marginRight: 4,
   },
   cardBody: {
-    marginBottom: 12,
-  },
-  tenantName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
-  },
-  houseName: {
-    fontSize: 14,
-    color: '#666',
     marginBottom: 8,
   },
-  amountRow: {
+  amountContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    marginBottom: 8,
   },
   amountLabel: {
     fontSize: 14,
-    color: '#666',
+    color: '#7f8c8d',
+    fontWeight: '500',
   },
   amountValue: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#2196f3',
+    fontWeight: '700',
+    color: '#27ae60',
   },
-  cardFooter: {
+  balanceContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexWrap: 'wrap',
   },
-  balanceInfo: {
-    flex: 1,
+  balanceItem: {
+    flexDirection: 'row',
+    marginRight: 12,
+    marginBottom: 4,
   },
-  balanceText: {
-    color: '#ff5252',
+  balanceLabel: {
+    fontSize: 13,
+    color: '#7f8c8d',
+    marginRight: 4,
+  },
+  balanceValue: {
+    fontSize: 13,
     fontWeight: '600',
-    fontSize: 12,
-    marginBottom: 2,
+    color: '#e74c3c',
   },
-  overpaymentText: {
-    color: '#4caf50',
+  overpaymentLabel: {
+    fontSize: 13,
+    color: '#7f8c8d',
+    marginRight: 4,
+  },
+  overpaymentValue: {
+    fontSize: 13,
     fontWeight: '600',
-    fontSize: 12,
+    color: '#2ecc71',
   },
   expandedSection: {
     marginTop: 12,
-    backgroundColor: '#f7faff',
-    borderRadius: 12,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#e3eaff',
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
   },
   expandedRow: {
     flexDirection: 'row',
@@ -1029,25 +1130,57 @@ const styles = StyleSheet.create({
     color: '#555',
     flex: 1,
   },
+  expandButton: {
+    alignItems: 'center',
+    marginTop: 8,
+  },
   separator: {
-    height: 8,
+    height: 12,
   },
   emptyContainer: {
-    alignItems: 'center',
+    flex: 1,
     justifyContent: 'center',
-    paddingVertical: 60,
+    alignItems: 'center',
+    padding: 40,
   },
   emptyText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#666',
+    color: '#7f8c8d',
     marginTop: 16,
     marginBottom: 8,
   },
   emptySubtext: {
     fontSize: 14,
-    color: '#888',
+    color: '#bdc3c7',
     textAlign: 'center',
+    marginBottom: 20,
+  },
+  emptyButton: {
+    backgroundColor: '#4f8cff',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+  emptyButtonText: {
+    color: 'white',
+    fontWeight: '600',
+  },
+  fab: {
+    position: 'absolute',
+    right: 24,
+    bottom: 24,
+    backgroundColor: '#4f8cff',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   modalOverlay: {
     flex: 1,
@@ -1172,6 +1305,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 14,
+    color: '#333',
   },
   dateRangeSeparator: {
     marginHorizontal: 12,
@@ -1191,6 +1325,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 14,
+    color: '#333',
   },
   amountRangeSeparator: {
     marginHorizontal: 12,
