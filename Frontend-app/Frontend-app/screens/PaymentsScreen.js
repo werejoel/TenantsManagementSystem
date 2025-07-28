@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState, useContext } from 'react';
-import { View, Text, StyleSheet, Button, ActivityIndicator, Alert, TextInput } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Alert, TextInput, TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import PaymentList from '../components/PaymentList';
 import { fetchPayments } from '../services/paymentService';
 import { AuthContext } from '../context/AuthContext';
@@ -37,24 +38,60 @@ const PaymentsScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      {/*
       <Text style={styles.title}>Payments</Text>
       <View style={styles.filters}>
         <TextInput style={styles.input} placeholder="Filter by Tenant" value={filterTenant} onChangeText={setFilterTenant} />
         <TextInput style={styles.input} placeholder="Start Date (YYYY-MM-DD)" value={filterStart} onChangeText={setFilterStart} />
         <TextInput style={styles.input} placeholder="End Date (YYYY-MM-DD)" value={filterEnd} onChangeText={setFilterEnd} />
       </View>
+      */}
       {loading ? (
         <ActivityIndicator size="large" color="#000" />
       ) : (
-        <PaymentList payments={filteredPayments} />
+        <PaymentList payments={filteredPayments} navigation={navigation} />
       )}
-      <Button title="Record Payment" onPress={() => navigation.navigate('AddPayment')} />
+
+      {/* Modern Floating Add Payment Button 
+      <TouchableOpacity
+        style={styles.fab}
+        activeOpacity={0.85}
+        onPress={() => navigation.navigate('AddPayment')}
+      >
+        <MaterialCommunityIcons name="plus" size={28} color="#fff" />
+        <Text style={styles.fabText}>Add Payment</Text>
+      </TouchableOpacity>
+      */}
     </View>
   );
 };
 
 
 const styles = StyleSheet.create({
+  fab: {
+    position: 'absolute',
+    right: 24,
+    bottom: 32,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#007aff',
+    borderRadius: 32,
+    paddingVertical: 14,
+    paddingHorizontal: 22,
+    elevation: 6,
+    shadowColor: '#007aff',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    zIndex: 100,
+  },
+  fabText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginLeft: 10,
+    letterSpacing: 0.5,
+  },
   container: {
     flex: 1,
     padding: 16,

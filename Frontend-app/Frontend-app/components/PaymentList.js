@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
+import { SafeAreaView } from 'react-native';
 import {
   View,
   Text,
@@ -17,7 +18,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-const PaymentList = ({ payments }) => {
+const PaymentList = ({ payments, navigation }) => {
   // State variables
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('date');
@@ -42,7 +43,7 @@ const PaymentList = ({ payments }) => {
     }).start();
   }, []);
 
-  // Get status with enhanced color coding
+  // Get status
   const getStatus = (item) => {
     if (item.balance_due > 0) return {
       label: 'Arrears',
@@ -492,7 +493,7 @@ const PaymentList = ({ payments }) => {
 
             <ScrollView style={styles.detailModalBody}>
               <View style={styles.detailSection}>
-                <Text style={styles.detailSectionTitle}>Basic Information</Text>
+                <Text style={styles.detailSectionTitle}>Information</Text>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Tenant:</Text>
                   <Text style={styles.detailValue}>{selectedPayment.tenant_name || selectedPayment.tenant}</Text>
@@ -578,245 +579,242 @@ const PaymentList = ({ payments }) => {
   );
 
   return (
-    <View style={styles.container}>
-      {/* Summary Cards */}
-      <View style={styles.summaryContainer}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.summaryScrollContent}
-        >
-          <SummaryCard
-            title="Total Paid"
-            value={`UGX ${summaryData.totalPaid.toLocaleString()}`}
-            icon="cash-multiple"
-            color="#4f8cff"
-            bgColor="#f0f6ff"
-            subtitle={`${summaryData.totalPayments} payments`}
-            onPress={() => applyQuickFilter('all')}
-          />
-          <SummaryCard
-            title="Arrears"
-            value={`UGX ${summaryData.totalArrears.toLocaleString()}`}
-            icon="alert-circle"
-            color="#ff6b6b"
-            bgColor="#fff0f0"
-            subtitle={`${summaryData.statusCounts.arrears || 0} tenants`}
-            onPress={() => applyQuickFilter('overdue')}
-          />
-          <SummaryCard
-            title="Overpayment"
-            value={`UGX ${summaryData.totalOverpayment.toLocaleString()}`}
-            icon="cash-refund"
-            color="#4caf50"
-            bgColor="#f0f9f0"
-            subtitle={`${summaryData.statusCounts.overpaid || 0} tenants`}
-            onPress={() => setFilterStatus('overpaid')}
-          />
-          <SummaryCard
-            title="Average"
-            value={`UGX ${Math.round(summaryData.averagePayment).toLocaleString()}`}
-            icon="chart-line"
-            color="#ff9800"
-            bgColor="#fff8e6"
-            subtitle="per payment"
-            onPress={() => applyQuickFilter('highValue')}
-          />
-        </ScrollView>
-      </View>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.mainContentWrapper}>
+        {/* Search, Filter, Sort, and Summary Section */}
+        <View style={styles.controlsCard}>
+          {/* Summary Cards */}
+          <View style={styles.summaryContainer}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={true}
+              contentContainerStyle={styles.summaryScrollContent}
+            >
+              <SummaryCard
+                title="Total Paid"
+                value={`UGX ${summaryData.totalPaid.toLocaleString()}`}
+                icon="cash-multiple"
+                color="#4f8cff"
+                bgColor="#f0f6ff"
+                subtitle={`${summaryData.totalPayments} payments`}
+                onPress={() => applyQuickFilter('all')}
+              />
+              <SummaryCard
+                title="Arrears"
+                value={`UGX ${summaryData.totalArrears.toLocaleString()}`}
+                icon="alert-circle"
+                color="#ff6b6b"
+                bgColor="#fff0f0"
+                subtitle={`${summaryData.statusCounts.arrears || 0} tenants`}
+                onPress={() => applyQuickFilter('overdue')}
+              />
+              <SummaryCard
+                title="Overpayment"
+                value={`UGX ${summaryData.totalOverpayment.toLocaleString()}`}
+                icon="cash-refund"
+                color="#4caf50"
+                bgColor="#f0f9f0"
+                subtitle={`${summaryData.statusCounts.overpaid || 0} tenants`}
+                onPress={() => setFilterStatus('overpaid')}
+              />
+              <SummaryCard
+                title="Average"
+                value={`UGX ${Math.round(summaryData.averagePayment).toLocaleString()}`}
+                icon="chart-line"
+                color="#ff9800"
+                bgColor="#fff8e6"
+                subtitle="per payment"
+                onPress={() => applyQuickFilter('highValue')}
+              />
+            </ScrollView>
+          </View>
 
-      {/* Bulk Actions Bar */}
-      {selectedPayments.length > 0 && (
-        <View style={styles.bulkActionsContainer}>
-          <Text style={styles.bulkActionsText}>
-            {selectedPayments.length} payment{selectedPayments.length > 1 ? 's' : ''} selected
-          </Text>
-          <View style={styles.bulkActionsButtons}>
+        {/* Controls Row with Sort Controls */}
+        <View style={styles.controlsRowCombined}>
+          <View style={styles.searchContainerReduced}>
+            <MaterialCommunityIcons name="magnify" size={22} color="#4f8cff" style={{ marginRight: 8 }} />
+            <TextInput
+              style={styles.searchInputReduced}
+              placeholder="Search payments..."
+              placeholderTextColor="#b0b0b0"
+              value={search}
+              onChangeText={setSearch}
+              returnKeyType="search"
+              onSubmitEditing={Keyboard.dismiss}
+            />
+            {search.length > 0 && (
+              <TouchableOpacity onPress={() => setSearch('')} style={styles.clearSearchBtnImproved}>
+                <MaterialCommunityIcons name="close-circle" size={20} color="#bbb" />
+              </TouchableOpacity>
+            )}
+          </View>
+          <View style={styles.filterButtonsRight}>
             <TouchableOpacity
-              style={[styles.bulkActionBtn, styles.markPaidBtn]}
-              onPress={() => handleBulkAction('markPaid')}
+              style={styles.filterBtnImproved}
+              onPress={() => setShowFilters(true)}
             >
-              <MaterialCommunityIcons name="check-circle" size={18} color="#fff" />
-              <Text style={styles.bulkActionText}>Mark Paid</Text>
+              <MaterialCommunityIcons name="filter-variant" size={22} color="#fff" />
+              <Text style={styles.filterBtnTextImproved}>Filters</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.bulkActionBtn, styles.reminderBtn]}
-              onPress={() => handleBulkAction('sendReminder')}
+              style={styles.viewModeBtnImproved}
+              onPress={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')}
             >
-              <MaterialCommunityIcons name="email" size={18} color="#fff" />
-              <Text style={styles.bulkActionText}>Remind</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.bulkActionBtn, styles.exportBtn]}
-              onPress={exportPayments}
-            >
-              <MaterialCommunityIcons name="download" size={18} color="#fff" />
-              <Text style={styles.bulkActionText}>Export</Text>
+              <MaterialCommunityIcons
+                name={viewMode === 'list' ? 'view-grid' : 'view-list'}
+                size={22}
+                color="#4f8cff"
+              />
             </TouchableOpacity>
           </View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.sortContainerInline}
+            contentContainerStyle={styles.sortContent}
+          >
+            {[
+              { key: 'date', icon: 'calendar', label: 'Date' },
+              { key: 'amount', icon: 'currency-usd', label: 'Amount' },
+              { key: 'tenant', icon: 'account', label: 'Tenant' },
+              { key: 'status', icon: 'check-circle', label: 'Status' },
+              { key: 'balance', icon: 'alert-circle', label: 'Balance' }
+            ].map(sort => (
+              <TouchableOpacity
+                key={sort.key}
+                style={[
+                  styles.sortBtn,
+                  sortBy === sort.key && styles.sortBtnActive
+                ]}
+                onPress={() => toggleSort(sort.key)}
+              >
+                <MaterialCommunityIcons
+                  name={sort.icon}
+                  size={16}
+                  color={sortBy === sort.key ? '#fff' : '#4f8cff'}
+                />
+                <Text style={[
+                  styles.sortBtnText,
+                  sortBy === sort.key && styles.sortBtnTextActive
+                ]}>
+                  {sort.label}
+                </Text>
+                {sortBy === sort.key && (
+                  <MaterialCommunityIcons
+                    name={sortOrder === 'desc' ? 'chevron-down' : 'chevron-up'}
+                    size={14}
+                    color="#fff"
+                    style={styles.sortIcon}
+                  />
+                )}
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
-      )}
+        </View>
 
-      {/* Search and Filter Section */}
-      <View style={styles.controlsContainer}>
-        <View style={styles.searchContainer}>
-          <MaterialCommunityIcons name="magnify" size={20} color="#7a7a7a" />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search payments..."
-            placeholderTextColor="#9a9a9a"
-            value={search}
-            onChangeText={setSearch}
-            returnKeyType="search"
-            onSubmitEditing={Keyboard.dismiss}
-          />
-          {search.length > 0 && (
-            <TouchableOpacity onPress={() => setSearch('')} style={styles.clearSearchBtn}>
-              <MaterialCommunityIcons name="close-circle" size={20} color="#ccc" />
+
+        {/* Results Info */}
+        <View style={styles.resultsInfo}>
+          <Text style={styles.resultsText}>
+            Showing {filteredAndSortedPayments.length} of {payments.length} payments
+          </Text>
+          {(search || filterStatus !== 'all' || dateRange.start || dateRange.end || amountRange.min || amountRange.max) && (
+            <TouchableOpacity onPress={clearFilters}>
+              <Text style={styles.clearAllText}>Clear filters</Text>
             </TouchableOpacity>
           )}
         </View>
 
-        <View style={styles.actionsRow}>
-          <TouchableOpacity
-            style={styles.filterBtn}
-            onPress={() => setShowFilters(true)}
-          >
-            <MaterialCommunityIcons name="filter-variant" size={20} color="#4f8cff" />
-            <Text style={styles.filterBtnText}>Filters</Text>
-          </TouchableOpacity>
+        {/* Payment List in Tabular Format */}
+        {filteredAndSortedPayments.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <MaterialCommunityIcons name="file-document-outline" size={64} color="#d0d0d0" />
+            <Text style={styles.emptyText}>No payments found</Text>
+            <Text style={styles.emptySubtext}>Try adjusting your search or filters</Text>
+            <TouchableOpacity style={styles.emptyButton} onPress={clearFilters}>
+              <Text style={styles.emptyButtonText}>Clear all filters</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <ScrollView style={{flex: 1}} contentContainerStyle={{flexGrow: 1}}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={true}>
+              <View style={[styles.tableContainer, {minWidth: 1300}]}> {/* minWidth ensures horizontal scroll */}
+                {/* Table Header */}
+                <View style={styles.tableHeaderRow}>
+                  <Text style={[styles.tableHeaderCell, {flex: 1.6}]}>Tenant</Text>
+                  <Text style={[styles.tableHeaderCell, {flex: 1.3}]}>House</Text>
+                  <Text style={[styles.tableHeaderCell, {flex: 1.1}]}>Amount Paid</Text>
+                  <Text style={[styles.tableHeaderCell, {flex: 1.1}]}>Balance</Text>
+                  <Text style={[styles.tableHeaderCell, {flex: 1.1}]}>Overpayment</Text>
+                  <Text style={[styles.tableHeaderCell, {flex: 1.3}]}>Date</Text>
+                  <Text style={[styles.tableHeaderCell, {flex: 1.1}]}>Status</Text>
+                  <Text style={[styles.tableHeaderCell, {flex: 0.9, textAlign: 'center'}]}>Payment Details</Text>
+                </View>
+                {/* Table Rows */}
+                {filteredAndSortedPayments.map(item => {
+                  const status = getStatus(item);
+                  return (
+                    <View
+                      key={item.id}
+                      style={styles.tableRow}
+                    >
+                      <Text style={[styles.tableCell, {flex: 1.6}]} numberOfLines={1}>{item.tenant_name || item.tenant}</Text>
+                      <Text style={[styles.tableCell, {flex: 1.3}]} numberOfLines={1}>{item.house_name || item.house}</Text>
+                      <Text style={[styles.tableCell, {flex: 1.1}]}>UGX {item.amount_paid.toLocaleString()}</Text>
+                      <Text style={[styles.tableCell, {flex: 1.1, color: '#e74c3c'}]}>{item.balance_due > 0 ? `UGX ${item.balance_due.toLocaleString()}` : '-'}</Text>
+                      <Text style={[styles.tableCell, {flex: 1.1, color: '#2ecc71'}]}>{item.overpayment > 0 ? `UGX ${item.overpayment.toLocaleString()}` : '-'}</Text>
+                      <Text style={[styles.tableCell, {flex: 1.3}]}>{item.payment_date}</Text>
+                      <View style={[styles.tableCell, {flex: 1.1, flexDirection: 'row', alignItems: 'center'}]}>
+                        <MaterialCommunityIcons name={status.icon} size={16} color={status.color} />
+                        <Text style={{color: status.color, marginLeft: 4, fontWeight: '600'}}>{status.label}</Text>
+                      </View>
+                      <View style={[styles.tableCell, {flex: 0.9, alignItems: 'center', justifyContent: 'center'}]}>
+                        <TouchableOpacity
+                          style={styles.actionBtn}
+                          onPress={() => setSelectedPayment(item)}
+                        >
+                          <MaterialCommunityIcons name="eye" size={20} color="#4f8cff" />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  );
+                })}
+              </View>
+            </ScrollView>
+          </ScrollView>
+        )}
+ 
 
-          <TouchableOpacity
-            style={styles.viewModeBtn}
-            onPress={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')}
-          >
-            <MaterialCommunityIcons
-              name={viewMode === 'list' ? 'view-grid' : 'view-list'}
-              size={22}
-              color="#4f8cff"
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Sort Controls */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.sortContainer}
-        contentContainerStyle={styles.sortContent}
-      >
-        {[
-          { key: 'date', icon: 'calendar', label: 'Date' },
-          { key: 'amount', icon: 'currency-usd', label: 'Amount' },
-          { key: 'tenant', icon: 'account', label: 'Tenant' },
-          { key: 'status', icon: 'check-circle', label: 'Status' },
-          { key: 'balance', icon: 'alert-circle', label: 'Balance' }
-        ].map(sort => (
-          <TouchableOpacity
-            key={sort.key}
-            style={[
-              styles.sortBtn,
-              sortBy === sort.key && styles.sortBtnActive
-            ]}
-            onPress={() => toggleSort(sort.key)}
-          >
-            <MaterialCommunityIcons
-              name={sort.icon}
-              size={16}
-              color={sortBy === sort.key ? '#fff' : '#4f8cff'}
-            />
-            <Text style={[
-              styles.sortBtnText,
-              sortBy === sort.key && styles.sortBtnTextActive
-            ]}>
-              {sort.label}
-            </Text>
-            {sortBy === sort.key && (
-              <MaterialCommunityIcons
-                name={sortOrder === 'desc' ? 'chevron-down' : 'chevron-up'}
-                size={14}
-                color="#fff"
-                style={styles.sortIcon}
-              />
-            )}
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-
-      {/* Results Info */}
-      <View style={styles.resultsInfo}>
-        <Text style={styles.resultsText}>
-          Showing {filteredAndSortedPayments.length} of {payments.length} payments
-        </Text>
-        {(search || filterStatus !== 'all' || dateRange.start || dateRange.end || amountRange.min || amountRange.max) && (
-          <TouchableOpacity onPress={clearFilters}>
-            <Text style={styles.clearAllText}>Clear filters</Text>
+        {/* Add Payment FA*/}
+        {navigation && (
+          <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('AddPayment')}>
+            <MaterialCommunityIcons name="plus" size={28} color="white" />
           </TouchableOpacity>
         )}
+
+        {/* Modals */}
+        <FilterModal />
+        <PaymentDetailModal />
       </View>
-
-      {/* Payment List */}
-      {filteredAndSortedPayments.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <MaterialCommunityIcons name="file-document-outline" size={64} color="#d0d0d0" />
-          <Text style={styles.emptyText}>No payments found</Text>
-          <Text style={styles.emptySubtext}>Try adjusting your search or filters</Text>
-          <TouchableOpacity style={styles.emptyButton} onPress={clearFilters}>
-            <Text style={styles.emptyButtonText}>Clear all filters</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <FlatList
-          data={filteredAndSortedPayments}
-          keyExtractor={item => item.id.toString()}
-          key={viewMode}
-          numColumns={viewMode === 'list' ? 1 : 2}
-          renderItem={({ item }) => (
-            <View style={viewMode === 'grid' ? styles.gridCardContainer : styles.listCardContainer}>
-              <PaymentCard
-                item={item}
-                isExpanded={expanded[item.id]}
-                onPress={() => toggleExpand(item.id)}
-                onLongPress={() => setSelectedPayment(item)}
-                isSelected={selectedPayments.includes(item.id)}
-                onSelect={() => {
-                  setSelectedPayments(prev =>
-                    prev.includes(item.id)
-                      ? prev.filter(id => id !== item.id)
-                      : [...prev, item.id]
-                  );
-                }}
-              />
-            </View>
-          )}
-          contentContainerStyle={styles.listContainer}
-          showsVerticalScrollIndicator={false}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-        />
-      )}
-
-      {/* Add Payment FAB */}
-      <TouchableOpacity style={styles.fab} onPress={() => Alert.alert('Add Payment', 'Add payment functionality')}>
-        <MaterialCommunityIcons name="plus" size={28} color="white" />
-      </TouchableOpacity>
-
-      {/* Modals */}
-      <FilterModal />
-      <PaymentDetailModal />
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  mainContentWrapper: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+  },
   container: {
     flex: 1,
     backgroundColor: '#f8faff',
     paddingTop: 16,
   },
   summaryContainer: {
-    paddingHorizontal: 16,
-    marginBottom: 16,
+    paddingHorizontal: 10,
+    marginBottom: 8,
   },
   summaryScrollContent: {
     paddingBottom: 8,
@@ -824,7 +822,9 @@ const styles = StyleSheet.create({
   summaryCard: {
     borderRadius: 16,
     padding: 16,
-    width: SCREEN_WIDTH * 0.7,
+    width: SCREEN_WIDTH * 0.42,
+    minWidth: 180,
+    maxWidth: 220,
     marginRight: 12,
     elevation: 2,
     shadowColor: '#000',
@@ -905,58 +905,83 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     fontSize: 14,
   },
-  controlsContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    marginBottom: 12,
-    alignItems: 'center',
+  controlsCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    marginHorizontal: 12,
+    marginBottom: 16,
+    padding: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  searchContainer: {
-    flex: 1,
+  controlsRowCombined: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    marginRight: 12,
-    elevation: 1,
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 8,
   },
-  searchInput: {
+  searchContainerReduced: {
+    width: '55%',
+    minWidth: 160,
+    maxWidth: 320,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f4f8ff',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: '#e0e8f8',
+  },
+  searchInputReduced: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
-    marginLeft: 8,
+    color: '#222',
   },
-  clearSearchBtn: {
-    padding: 4,
-  },
-  actionsRow: {
-    flexDirection: 'row',
-  },
-  filterBtn: {
+  filterButtonsRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#e3f2fd',
-    borderRadius: 12,
-    paddingHorizontal: 16,
+    marginLeft: 'auto',
+    gap: 4,
+  },
+  clearSearchBtnImproved: {
+    padding: 2,
+    marginLeft: 2,
+  },
+  filterBtnImproved: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#4f8cff',
+    borderRadius: 10,
+    paddingHorizontal: 14,
     paddingVertical: 10,
+    marginRight: 8,
+    elevation: 1,
   },
-  filterBtnText: {
+  filterBtnTextImproved: {
     marginLeft: 6,
-    color: '#2196f3',
-    fontWeight: '600',
+    color: '#fff',
+    fontWeight: '700',
     fontSize: 15,
+    letterSpacing: 0.2,
   },
-  viewModeBtn: {
+  viewModeBtnImproved: {
     padding: 10,
-    backgroundColor: '#e3f2fd',
-    borderRadius: 12,
-    marginLeft: 10,
+    backgroundColor: '#f4f8ff',
+    borderRadius: 10,
+    marginLeft: 2,
+    borderWidth: 1,
+    borderColor: '#e0e8f8',
   },
-  sortContainer: {
-    marginBottom: 12,
-    paddingHorizontal: 16,
+  sortContainerInline: {
+    marginLeft: 8,
+    flexGrow: 1,
+    minWidth: 0,
   },
   sortContent: {
     paddingBottom: 4,
@@ -1418,6 +1443,85 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 12,
     fontWeight: '600',
+  },
+  tableContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    marginHorizontal: 8,
+    marginBottom: 16,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#e0e8f8',
+  },
+  tableHeaderRow: {
+    flexDirection: 'row',
+    backgroundColor: '#f4f8ff',
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e8f8',
+  },
+  tableHeaderCell: {
+    fontWeight: '700',
+    fontSize: 14,
+    color: '#4f8cff',
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    letterSpacing: 0.1,
+  },
+  tableRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+    backgroundColor: '#fff',
+  },
+  tableCell: {
+    fontSize: 13,
+    color: '#222',
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    textAlignVertical: 'center',
+  },
+
+  actionBtn: {
+    backgroundColor: '#f4f8ff',
+    borderRadius: 16,
+    padding: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#e0e8f8',
+    shadowColor: '#4f8cff22',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+  },
+  tableHeaderCell: {
+    fontWeight: '700',
+    fontSize: 14,
+    color: '#4f8cff',
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    letterSpacing: 0.1,
+  },
+  tableRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+    backgroundColor: '#fff',
+  },
+  tableCell: {
+    fontSize: 13,
+    color: '#222',
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    textAlignVertical: 'center',
   },
 });
 
