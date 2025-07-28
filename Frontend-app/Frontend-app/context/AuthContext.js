@@ -10,11 +10,31 @@ export const AuthProvider = ({ children }) => {
   const login = (userData) => {
     // If userData has access token, store it as user.token
     if (userData && userData.access) {
+      let userInfo = userData.user ? { ...userData.user } : {};
+      // Try to extract role from userData (for custom backend response)
+      if (userData.role) {
+        userInfo.role = userData.role;
+      } else if (userData.data && userData.data.role) {
+        userInfo.role = userData.data.role;
+      } else if (!userInfo.role) {
+        userInfo.role = 'user';
+      }
       setUser({
-        ...userData.user, // user info if present
+        ...userInfo,
         token: userData.access,
         refresh: userData.refresh,
       });
+    } else if (userData) {
+      // If userData is a plain object, ensure role is present
+      let userInfo = { ...userData };
+      if (userData.role) {
+        userInfo.role = userData.role;
+      } else if (userData.data && userData.data.role) {
+        userInfo.role = userData.data.role;
+      } else if (!userInfo.role) {
+        userInfo.role = 'user';
+      }
+      setUser(userInfo);
     } else {
       setUser(userData);
     }

@@ -1,3 +1,16 @@
+from rest_framework.permissions import BasePermission, IsAuthenticated
+# Custom permission: Only admin/manager can delete
+class IsAdminOrManager(BasePermission):
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        try:
+            profile = getattr(request.user, 'profile', None)
+            if profile and profile.role in ['manager', 'admin']:
+                return True
+        except Exception:
+            pass
+        return False
 from django.shortcuts import render
 from rest_framework import generics
 from .models import House
@@ -8,6 +21,16 @@ class HouseListCreateView(generics.ListCreateAPIView):
     queryset = House.objects.all()
     serializer_class = HouseSerializer
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        if not serializer.is_valid():
+            logging.error(f"House update error: {serializer.errors}")
+            print(f"House update error: {serializer.errors}")
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        self.perform_update(serializer)
+        return Response(serializer.data)
 # Update house/unit info
 from rest_framework import status
 from rest_framework.response import Response
@@ -21,6 +44,7 @@ class HouseRetrieveUpdateView(generics.RetrieveUpdateAPIView):
 class HouseRetrieveDestroyView(generics.RetrieveDestroyAPIView):
     queryset = House.objects.all()
     serializer_class = HouseSerializer
+    permission_classes = [IsAuthenticated, IsAdminOrManager]
 
 # Mark unit as vacant or occupied
 class HouseOccupancyView(APIView):

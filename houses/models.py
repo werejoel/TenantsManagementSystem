@@ -63,19 +63,19 @@ class House(models.Model):
     price = models.PositiveIntegerField(help_text="Monthly rental price in UGX")
     location = models.CharField(max_length=255, help_text="Physical location/address")
     is_occupied = models.BooleanField(default=False, help_text="Whether the property is currently occupied")
+    HOUSE_MODEL_CHOICES = [
+        ("1BHK", "1 Bedroom Hall Kitchen"),
+        ("2BHK", "2 Bedroom Hall Kitchen"),
+        ("Studio", "Studio"),
+        ("Single Room", "Single Room"),
+        ("Other", "Other"),
+    ]
+
     model = models.CharField(
-        max_length=30,
-        choices=HOUSE_TYPES,
-        default='apartment',
-        help_text="Type of property (kept as 'model' for backward compatibility)"
-    )
-    
-    # Utility information
-    electricity_meter_number = models.CharField(
         max_length=50,
-        null=True,
-        blank=True,
-        help_text="Electricity meter number"
+        choices=HOUSE_MODEL_CHOICES,
+        default="1BHK",
+        help_text="Type of property"
     )
     water_meter_number = models.CharField(
         max_length=50,
@@ -102,11 +102,6 @@ class House(models.Model):
         related_name='houses',
         help_text="Owner of the property"
     )
-    
-    # Timestamps
-    created_at = models.DateTimeField(auto_now_add=True, null=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
     # Additional fields
     description = models.TextField(null=True, blank=True, help_text="Additional property description")
     amenities = models.TextField(null=True, blank=True, help_text="List of amenities (comma-separated)")
