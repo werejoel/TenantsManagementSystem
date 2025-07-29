@@ -14,6 +14,7 @@ import {
   StatusBar,
   Platform,
 } from 'react-native';
+import axios from 'axios';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'react-native';
 import { AuthContext } from '../context/AuthContext';
@@ -35,10 +36,28 @@ const TenantDashboardScreen = () => {
   const [maintenanceRequest, setMaintenanceRequest] = useState('');
   const [paymentAmount, setPaymentAmount] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('cash');
-  const [notifications, setNotifications] = useState([
-    { id: 1, title: 'Rent Due Soon', message: 'Your rent is due in 3 days', type: 'warning', date: '2025-01-28' },
-    { id: 2, title: 'Maintenance Scheduled', message: 'Plumbing maintenance on Feb 1st', type: 'info', date: '2025-01-25' },
-  ]);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notificationsVisible, setNotificationsVisible] = useState(false);
+
+  const fetchNotifications = useCallback(async () => {
+    try {
+      // Replace with your backend endpoint for notifications
+      const res = await axios.get('https://your-backend.com/api/notifications/', {
+        headers: { Authorization: `Bearer ${user?.token}` },
+      });
+      setNotifications(res.data);
+      setUnreadCount(res.data.filter(n => !n.read).length);
+    } catch (err) {
+      // fallback to demo notifications if backend fails
+      const demo = [
+        { id: 1, title: 'Rent Due Soon', message: 'Your rent is due in 3 days', type: 'warning', date: '2025-01-28', read: false },
+        { id: 2, title: 'Maintenance Scheduled', message: 'Plumbing maintenance on Feb 1st', type: 'info', date: '2025-01-25', read: true },
+      ];
+      setNotifications(demo);
+      setUnreadCount(demo.filter(n => !n.read).length);
+    }
+  }, [user]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -51,13 +70,14 @@ const TenantDashboardScreen = () => {
       setHouse(houseData);
       const myPayments = paymentsData.filter(p => p.tenant && p.tenant.user === user?.id);
       setPayments(myPayments);
+      await fetchNotifications();
     } catch (error) {
       Alert.alert('Error', 'Failed to fetch data. Please try again.');
     } finally {
       setLoading(false);
       setPaymentsLoading(false);
     }
-  }, [user]);
+  }, [user, fetchNotifications]);
 
   useEffect(() => {
     fetchData();
@@ -110,56 +130,56 @@ const TenantDashboardScreen = () => {
 
   const renderOverviewTab = () => (
     <View style={styles.tabContent}>
-      <View style={styles.statsContainer}>
-        <View style={[styles.statCard, styles.balanceCard]}>
-          <View style={styles.statHeader}>
-            <MaterialCommunityIcons name="wallet" size={24} color="#fff" />
-            <Text style={styles.statTitle}>Current Balance</Text>
+        <View style={styles.statsContainer}>
+          <View style={[styles.statCard, styles.balanceCard]}>
+            <View style={styles.statHeader}>
+              <MaterialCommunityIcons name="wallet" size={24} color="#fff" />
+              <Text style={styles.statTitle}>Current Balance</Text>
+            </View>
+            <Text style={styles.balanceAmount}>UGX {currentBalance.toLocaleString()}</Text>
+            <Text style={styles.nextDue}>Next due: {nextDueDate}</Text>
+            <View style={styles.allActionsRow}>
+              <TouchableOpacity
+                style={[styles.actionButton, { backgroundColor: '#B91C1C' }]}
+                onPress={() => setPaymentModalVisible(true)}
+                activeOpacity={0.85}
+              >
+                <MaterialCommunityIcons name="credit-card" size={22} color="#fff" style={styles.actionButtonIcon} />
+                <Text style={styles.actionButtonText}>Make Payment</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.actionButton, { backgroundColor: '#F59E0B' }]}
+                onPress={() => setMaintenanceModalVisible(true)}
+                activeOpacity={0.85}
+              >
+                <MaterialCommunityIcons name="wrench" size={22} color="#fff" style={styles.actionButtonIcon} />
+                <Text style={styles.actionButtonText}>Maintenance</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#10B981' }]} activeOpacity={0.85}>
+                <MaterialCommunityIcons name="file-document" size={22} color="#fff" style={styles.actionButtonIcon} />
+                <Text style={styles.actionButtonText}>Documents</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#8B5CF6' }]} activeOpacity={0.85}>
+                <MaterialCommunityIcons name="message" size={22} color="#fff" style={styles.actionButtonIcon} />
+                <Text style={styles.actionButtonText}>Contact</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-          <Text style={styles.balanceAmount}>UGX {currentBalance.toLocaleString()}</Text>
-          <Text style={styles.nextDue}>Next due: {nextDueDate}</Text>
+          <View style={styles.miniStatsRow}>
+            <View style={styles.miniStatCard}>
+              <MaterialCommunityIcons name="cash-refund" size={20} color="#10B981" />
+              <Text style={styles.miniStatValue}>UGX {overpayment.toLocaleString()}</Text>
+              <Text style={styles.miniStatLabel}>Overpayment</Text>
+            </View>
+            <View style={styles.miniStatCard}>
+              <MaterialCommunityIcons name="chart-line" size={20} color="#6366F1" />
+              <Text style={styles.miniStatValue}>UGX {totalPaid.toLocaleString()}</Text>
+              <Text style={styles.miniStatLabel}>Total Paid</Text>
+            </View>
+          </View>
         </View>
-        <View style={styles.miniStatsRow}>
-          <View style={styles.miniStatCard}>
-            <MaterialCommunityIcons name="cash-refund" size={20} color="#10B981" />
-            <Text style={styles.miniStatValue}>UGX {overpayment.toLocaleString()}</Text>
-            <Text style={styles.miniStatLabel}>Overpayment</Text>
-          </View>
-          <View style={styles.miniStatCard}>
-            <MaterialCommunityIcons name="chart-line" size={20} color="#6366F1" />
-            <Text style={styles.miniStatValue}>UGX {totalPaid.toLocaleString()}</Text>
-            <Text style={styles.miniStatLabel}>Total Paid</Text>
-          </View>
-        </View>
-      </View>
 
-      <View style={styles.quickActions}>
-        <Text style={styles.sectionTitle}>Quick Actions</Text>
-        <View style={styles.actionsGrid}>
-          <TouchableOpacity
-            style={[styles.actionCard, { backgroundColor: '#6366F1' }]}
-            onPress={() => setPaymentModalVisible(true)}
-          >
-            <MaterialCommunityIcons name="credit-card" size={28} color="#fff" />
-            <Text style={styles.actionText}>Make Payment</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.actionCard, { backgroundColor: '#F59E0B' }]}
-            onPress={() => setMaintenanceModalVisible(true)}
-          >
-            <MaterialCommunityIcons name="wrench" size={28} color="#fff" />
-            <Text style={styles.actionText}>Maintenance</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionCard, { backgroundColor: '#10B981' }]}>
-            <MaterialCommunityIcons name="file-document" size={28} color="#fff" />
-            <Text style={styles.actionText}>Documents</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionCard, { backgroundColor: '#8B5CF6' }]}>
-            <MaterialCommunityIcons name="message" size={28} color="#fff" />
-            <Text style={styles.actionText}>Contact</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      {/* Quick Actions section removed, all buttons are now in the balance card */}
 
       <View style={styles.notificationsSection}>
         <Text style={styles.sectionTitle}>Recent Notifications</Text>
@@ -340,9 +360,14 @@ const TenantDashboardScreen = () => {
             </View>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <TouchableOpacity style={styles.notificationButton}>
+            <TouchableOpacity style={styles.notificationButton} onPress={() => {
+              setNotificationsVisible(true);
+              // Mark all as read
+              setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+              setUnreadCount(0);
+            }}>
               <MaterialCommunityIcons name="bell" size={24} color="#fff" />
-              <View style={styles.notificationBadge} />
+              {unreadCount > 0 && <View style={styles.notificationBadge} />}
             </TouchableOpacity>
             <TouchableOpacity style={styles.logoutButton} onPress={logout}>
               <MaterialCommunityIcons name="logout" size={22} color="#fff" />
@@ -350,6 +375,45 @@ const TenantDashboardScreen = () => {
           </View>
         </View>
       </View>
+
+      {/* Notification Modal */}
+      <Modal
+        visible={notificationsVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setNotificationsVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { minHeight: 200, maxHeight: 400 }]}> 
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Notifications</Text>
+              <TouchableOpacity onPress={() => setNotificationsVisible(false)}>
+                <MaterialCommunityIcons name="close" size={24} color="#6B7280" />
+              </TouchableOpacity>
+            </View>
+            {notifications.length === 0 ? (
+              <Text style={{ color: '#6B7280', textAlign: 'center', marginTop: 24 }}>No notifications</Text>
+            ) : (
+              <ScrollView>
+                {notifications.map((notification) => (
+                  <View key={notification.id} style={[styles.notificationCard, { backgroundColor: notification.read ? '#fff' : '#EEF2FF' }]}> 
+                    <View style={styles.notificationHeader}>
+                      <MaterialCommunityIcons
+                        name={notification.type === 'warning' ? 'alert-circle' : 'information'}
+                        size={20}
+                        color={notification.type === 'warning' ? '#F59E0B' : '#6366F1'}
+                      />
+                      <Text style={styles.notificationTitle}>{notification.title}</Text>
+                      <Text style={styles.notificationDate}>{notification.date}</Text>
+                    </View>
+                    <Text style={styles.notificationMessage}>{notification.message}</Text>
+                  </View>
+                ))}
+              </ScrollView>
+            )}
+          </View>
+        </View>
+      </Modal>
 
       <View style={styles.tabNavigation}>
         {[
@@ -378,7 +442,7 @@ const TenantDashboardScreen = () => {
       <ScrollView
         style={styles.content}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#6366F1']} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#800020']} />}
       >
         {selectedTab === 'overview' && renderOverviewTab()}
         {selectedTab === 'payments' && renderPaymentsTab()}
@@ -478,6 +542,15 @@ const TenantDashboardScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  allActionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    gap: 12,
+    marginTop: 0,
+    marginBottom: 8,
+    minWidth: '100%',
+  },
   paymentMethodIcon: {
     width: 32,
     height: 32,
@@ -693,31 +766,37 @@ const styles = StyleSheet.create({
   quickActions: {
     marginBottom: 24,
   },
-  actionsGrid: {
+  actionsButtonRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     justifyContent: 'space-between',
+    marginBottom: 10,
   },
-  actionCard: {
-    width: (width - 60) / 2.5,
-    aspectRatio: 1.05,
-    borderRadius: 10,
-    padding: 10,
+  actionButton: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 8,
+    marginHorizontal: 6,
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+    borderRadius: 24,
+    backgroundColor: '#6366F1',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.07,
-    shadowRadius: 3,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 2,
+    elevation: 1,
+    width: 120,
+    minWidth: 120,
+    maxWidth: 120,
   },
-  actionText: {
-    fontSize: 13,
-    fontWeight: '600',
+  actionButtonIcon: {
+    marginRight: 8,
+  },
+  actionButtonText: {
     color: '#fff',
-    marginTop: 6,
-    textAlign: 'center',
+    fontWeight: '600',
+    fontSize: 15,
+    letterSpacing: 0.2,
   },
   notificationsSection: {
     marginBottom: 24,
