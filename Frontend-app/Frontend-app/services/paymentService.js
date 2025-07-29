@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/api/payments/'; // Use your backend URL and port
+const API_URL = 'http://localhost:8000/api/payments/'; // backend URL and port
 
 export const fetchPayments = async (token) => {
   try {

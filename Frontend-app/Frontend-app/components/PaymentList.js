@@ -17,9 +17,8 @@ import {
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-
 const PaymentList = ({ payments, navigation }) => {
-  // State variables
+  // State variables Management
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
@@ -136,7 +135,6 @@ const PaymentList = ({ payments, navigation }) => {
           comparison = (b.amount_paid || 0) - (a.amount_paid || 0);
           break;
         case 'tenant': {
-          // Ensure both values are strings for localeCompare
           const aTenant = a.tenant_name || a.tenant || '';
           const bTenant = b.tenant_name || b.tenant || '';
           const aStr = typeof aTenant === 'string' ? aTenant : String(aTenant);
@@ -169,7 +167,6 @@ const PaymentList = ({ payments, navigation }) => {
   };
 
   const toggleExpand = (id) => setExpanded(e => ({ ...e, [id]: !e[id] }));
-
   const clearFilters = () => {
     setSearch('');
     setFilterStatus('all');
@@ -241,8 +238,8 @@ const PaymentList = ({ payments, navigation }) => {
 
   // UI Components
   const SummaryCard = ({ title, value, icon, color, bgColor, subtitle, onPress }) => (
-    <TouchableOpacity 
-      onPress={onPress} 
+    <TouchableOpacity
+      onPress={onPress}
       style={[styles.summaryCard, { backgroundColor: bgColor }]}
       activeOpacity={0.9}
     >
@@ -264,22 +261,22 @@ const PaymentList = ({ payments, navigation }) => {
 
     return (
       <Animated.View style={{ opacity: fadeAnim, transform: [{ scale: fadeAnim }] }}>
-        <TouchableOpacity 
-          onPress={onPress} 
-          onLongPress={onLongPress} 
+        <TouchableOpacity
+          onPress={onPress}
+          onLongPress={onLongPress}
           activeOpacity={0.9}
         >
           <View style={[
-            styles.card, 
-            { 
+            styles.card,
+            {
               borderLeftWidth: 4,
               borderLeftColor: status.color,
               backgroundColor: isSelected ? status.bgColor : '#fff'
             }
           ]}>
             <View style={styles.cardHeader}>
-              <TouchableOpacity 
-                onPress={onSelect} 
+              <TouchableOpacity
+                onPress={onSelect}
                 style={styles.checkboxContainer}
               >
                 <MaterialCommunityIcons
@@ -288,18 +285,18 @@ const PaymentList = ({ payments, navigation }) => {
                   color={isSelected ? status.color : '#ccc'}
                 />
               </TouchableOpacity>
-              
+
               <View style={styles.cardHeaderCenter}>
                 <Text style={styles.tenantName} numberOfLines={1}>{item.tenant_name || item.tenant}</Text>
                 <Text style={styles.houseName} numberOfLines={1}>{item.house_name || item.house}</Text>
               </View>
-              
+
               <View style={styles.cardHeaderRight}>
                 <View style={[styles.statusContainer, { backgroundColor: status.bgColor }]}>
-                  <MaterialCommunityIcons 
-                    name={status.icon} 
-                    size={14} 
-                    color={status.color} 
+                  <MaterialCommunityIcons
+                    name={status.icon}
+                    size={14}
+                    color={status.color}
                   />
                   <Text style={[styles.status, { color: status.color }]}>{status.label}</Text>
                 </View>
@@ -312,7 +309,7 @@ const PaymentList = ({ payments, navigation }) => {
                 <Text style={styles.amountLabel}>Amount Paid:</Text>
                 <Text style={styles.amountValue}>UGX {item.amount_paid.toLocaleString()}</Text>
               </View>
-              
+
               <View style={styles.balanceContainer}>
                 {item.balance_due > 0 && (
                   <View style={styles.balanceItem}>
@@ -353,15 +350,15 @@ const PaymentList = ({ payments, navigation }) => {
                 )}
               </View>
             )}
-            
-            <TouchableOpacity 
-              onPress={() => toggleExpand(item.id)} 
+
+            <TouchableOpacity
+              onPress={() => toggleExpand(item.id)}
               style={styles.expandButton}
             >
-              <MaterialCommunityIcons 
-                name={isExpanded ? 'chevron-up' : 'chevron-down'} 
-                size={20} 
-                color="#888" 
+              <MaterialCommunityIcons
+                name={isExpanded ? 'chevron-up' : 'chevron-down'}
+                size={20}
+                color="#888"
               />
             </TouchableOpacity>
           </View>
@@ -635,88 +632,88 @@ const PaymentList = ({ payments, navigation }) => {
             </ScrollView>
           </View>
 
-        {/* Controls Row with Sort Controls */}
-        <View style={styles.controlsRowCombined}>
-          <View style={styles.searchContainerReduced}>
-            <MaterialCommunityIcons name="magnify" size={22} color="#4f8cff" style={{ marginRight: 8 }} />
-            <TextInput
-              style={styles.searchInputReduced}
-              placeholder="Search payments..."
-              placeholderTextColor="#b0b0b0"
-              value={search}
-              onChangeText={setSearch}
-              returnKeyType="search"
-              onSubmitEditing={Keyboard.dismiss}
-            />
-            {search.length > 0 && (
-              <TouchableOpacity onPress={() => setSearch('')} style={styles.clearSearchBtnImproved}>
-                <MaterialCommunityIcons name="close-circle" size={20} color="#bbb" />
-              </TouchableOpacity>
-            )}
-          </View>
-          <View style={styles.filterButtonsRight}>
-            <TouchableOpacity
-              style={styles.filterBtnImproved}
-              onPress={() => setShowFilters(true)}
-            >
-              <MaterialCommunityIcons name="filter-variant" size={22} color="#fff" />
-              <Text style={styles.filterBtnTextImproved}>Filters</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.viewModeBtnImproved}
-              onPress={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')}
-            >
-              <MaterialCommunityIcons
-                name={viewMode === 'list' ? 'view-grid' : 'view-list'}
-                size={22}
-                color="#4f8cff"
+          {/* Controls Row with Sort Controls */}
+          <View style={styles.controlsRowCombined}>
+            <View style={styles.searchContainerReduced}>
+              <MaterialCommunityIcons name="magnify" size={22} color="#4f8cff" style={{ marginRight: 8 }} />
+              <TextInput
+                style={styles.searchInputReduced}
+                placeholder="Search payments..."
+                placeholderTextColor="#b0b0b0"
+                value={search}
+                onChangeText={setSearch}
+                returnKeyType="search"
+                onSubmitEditing={Keyboard.dismiss}
               />
-            </TouchableOpacity>
-          </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.sortContainerInline}
-            contentContainerStyle={styles.sortContent}
-          >
-            {[
-              { key: 'date', icon: 'calendar', label: 'Date' },
-              { key: 'amount', icon: 'currency-usd', label: 'Amount' },
-              { key: 'tenant', icon: 'account', label: 'Tenant' },
-              { key: 'status', icon: 'check-circle', label: 'Status' },
-              { key: 'balance', icon: 'alert-circle', label: 'Balance' }
-            ].map(sort => (
+              {search.length > 0 && (
+                <TouchableOpacity onPress={() => setSearch('')} style={styles.clearSearchBtnImproved}>
+                  <MaterialCommunityIcons name="close-circle" size={20} color="#bbb" />
+                </TouchableOpacity>
+              )}
+            </View>
+            <View style={styles.filterButtonsRight}>
               <TouchableOpacity
-                key={sort.key}
-                style={[
-                  styles.sortBtn,
-                  sortBy === sort.key && styles.sortBtnActive
-                ]}
-                onPress={() => toggleSort(sort.key)}
+                style={styles.filterBtnImproved}
+                onPress={() => setShowFilters(true)}
+              >
+                <MaterialCommunityIcons name="filter-variant" size={22} color="#fff" />
+                <Text style={styles.filterBtnTextImproved}>Filters</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.viewModeBtnImproved}
+                onPress={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')}
               >
                 <MaterialCommunityIcons
-                  name={sort.icon}
-                  size={16}
-                  color={sortBy === sort.key ? '#fff' : '#4f8cff'}
+                  name={viewMode === 'list' ? 'view-grid' : 'view-list'}
+                  size={22}
+                  color="#4f8cff"
                 />
-                <Text style={[
-                  styles.sortBtnText,
-                  sortBy === sort.key && styles.sortBtnTextActive
-                ]}>
-                  {sort.label}
-                </Text>
-                {sortBy === sort.key && (
-                  <MaterialCommunityIcons
-                    name={sortOrder === 'desc' ? 'chevron-down' : 'chevron-up'}
-                    size={14}
-                    color="#fff"
-                    style={styles.sortIcon}
-                  />
-                )}
               </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
+            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.sortContainerInline}
+              contentContainerStyle={styles.sortContent}
+            >
+              {[
+                { key: 'date', icon: 'calendar', label: 'Date' },
+                { key: 'amount', icon: 'currency-usd', label: 'Amount' },
+                { key: 'tenant', icon: 'account', label: 'Tenant' },
+                { key: 'status', icon: 'check-circle', label: 'Status' },
+                { key: 'balance', icon: 'alert-circle', label: 'Balance' }
+              ].map(sort => (
+                <TouchableOpacity
+                  key={sort.key}
+                  style={[
+                    styles.sortBtn,
+                    sortBy === sort.key && styles.sortBtnActive
+                  ]}
+                  onPress={() => toggleSort(sort.key)}
+                >
+                  <MaterialCommunityIcons
+                    name={sort.icon}
+                    size={16}
+                    color={sortBy === sort.key ? '#fff' : '#4f8cff'}
+                  />
+                  <Text style={[
+                    styles.sortBtnText,
+                    sortBy === sort.key && styles.sortBtnTextActive
+                  ]}>
+                    {sort.label}
+                  </Text>
+                  {sortBy === sort.key && (
+                    <MaterialCommunityIcons
+                      name={sortOrder === 'desc' ? 'chevron-down' : 'chevron-up'}
+                      size={14}
+                      color="#fff"
+                      style={styles.sortIcon}
+                    />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
         </View>
 
 
@@ -743,19 +740,19 @@ const PaymentList = ({ payments, navigation }) => {
             </TouchableOpacity>
           </View>
         ) : (
-          <ScrollView style={{flex: 1}} contentContainerStyle={{flexGrow: 1}}>
+          <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
             <ScrollView horizontal showsHorizontalScrollIndicator={true}>
-              <View style={[styles.tableContainer, {minWidth: 1300}]}> {/* minWidth ensures horizontal scroll */}
+              <View style={[styles.tableContainer, { minWidth: 1300 }]}> {/*horizontal scroll */}
                 {/* Table Header */}
                 <View style={styles.tableHeaderRow}>
-                  <Text style={[styles.tableHeaderCell, {flex: 1.6}]}>Tenant</Text>
-                  <Text style={[styles.tableHeaderCell, {flex: 1.3}]}>House</Text>
-                  <Text style={[styles.tableHeaderCell, {flex: 1.1}]}>Amount Paid</Text>
-                  <Text style={[styles.tableHeaderCell, {flex: 1.1}]}>Balance</Text>
-                  <Text style={[styles.tableHeaderCell, {flex: 1.1}]}>Overpayment</Text>
-                  <Text style={[styles.tableHeaderCell, {flex: 1.3}]}>Date</Text>
-                  <Text style={[styles.tableHeaderCell, {flex: 1.1}]}>Status</Text>
-                  <Text style={[styles.tableHeaderCell, {flex: 0.9, textAlign: 'center'}]}>Payment Details</Text>
+                  <Text style={[styles.tableHeaderCell, { flex: 1.6 }]}>Tenant</Text>
+                  <Text style={[styles.tableHeaderCell, { flex: 1.3 }]}>House</Text>
+                  <Text style={[styles.tableHeaderCell, { flex: 1.1 }]}>Amount Paid</Text>
+                  <Text style={[styles.tableHeaderCell, { flex: 1.1 }]}>Balance</Text>
+                  <Text style={[styles.tableHeaderCell, { flex: 1.1 }]}>Overpayment</Text>
+                  <Text style={[styles.tableHeaderCell, { flex: 1.3 }]}>Date</Text>
+                  <Text style={[styles.tableHeaderCell, { flex: 1.1 }]}>Status</Text>
+                  <Text style={[styles.tableHeaderCell, { flex: 0.9, textAlign: 'center' }]}>Payment Details</Text>
                 </View>
                 {/* Table Rows */}
                 {filteredAndSortedPayments.map(item => {
@@ -765,17 +762,17 @@ const PaymentList = ({ payments, navigation }) => {
                       key={item.id}
                       style={styles.tableRow}
                     >
-                      <Text style={[styles.tableCell, {flex: 1.6}]} numberOfLines={1}>{item.tenant_name || item.tenant}</Text>
-                      <Text style={[styles.tableCell, {flex: 1.3}]} numberOfLines={1}>{item.house_name || item.house}</Text>
-                      <Text style={[styles.tableCell, {flex: 1.1}]}>UGX {item.amount_paid.toLocaleString()}</Text>
-                      <Text style={[styles.tableCell, {flex: 1.1, color: '#e74c3c'}]}>{item.balance_due > 0 ? `UGX ${item.balance_due.toLocaleString()}` : '-'}</Text>
-                      <Text style={[styles.tableCell, {flex: 1.1, color: '#2ecc71'}]}>{item.overpayment > 0 ? `UGX ${item.overpayment.toLocaleString()}` : '-'}</Text>
-                      <Text style={[styles.tableCell, {flex: 1.3}]}>{item.payment_date}</Text>
-                      <View style={[styles.tableCell, {flex: 1.1, flexDirection: 'row', alignItems: 'center'}]}>
+                      <Text style={[styles.tableCell, { flex: 1.6 }]} numberOfLines={1}>{item.tenant_name || item.tenant}</Text>
+                      <Text style={[styles.tableCell, { flex: 1.3 }]} numberOfLines={1}>{item.house_name || item.house}</Text>
+                      <Text style={[styles.tableCell, { flex: 1.1 }]}>UGX {item.amount_paid.toLocaleString()}</Text>
+                      <Text style={[styles.tableCell, { flex: 1.1, color: '#e74c3c' }]}>{item.balance_due > 0 ? `UGX ${item.balance_due.toLocaleString()}` : '-'}</Text>
+                      <Text style={[styles.tableCell, { flex: 1.1, color: '#2ecc71' }]}>{item.overpayment > 0 ? `UGX ${item.overpayment.toLocaleString()}` : '-'}</Text>
+                      <Text style={[styles.tableCell, { flex: 1.3 }]}>{item.payment_date}</Text>
+                      <View style={[styles.tableCell, { flex: 1.1, flexDirection: 'row', alignItems: 'center' }]}>
                         <MaterialCommunityIcons name={status.icon} size={16} color={status.color} />
-                        <Text style={{color: status.color, marginLeft: 4, fontWeight: '600'}}>{status.label}</Text>
+                        <Text style={{ color: status.color, marginLeft: 4, fontWeight: '600' }}>{status.label}</Text>
                       </View>
-                      <View style={[styles.tableCell, {flex: 0.9, alignItems: 'center', justifyContent: 'center'}]}>
+                      <View style={[styles.tableCell, { flex: 0.9, alignItems: 'center', justifyContent: 'center' }]}>
                         <TouchableOpacity
                           style={styles.actionBtn}
                           onPress={() => setSelectedPayment(item)}
@@ -790,7 +787,7 @@ const PaymentList = ({ payments, navigation }) => {
             </ScrollView>
           </ScrollView>
         )}
- 
+
 
         {/* Add Payment FA*/}
         {navigation && (
@@ -815,8 +812,8 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#f8faff',
-    paddingTop: 16,
+    backgroundColor: '#ffffff',
+    paddingTop: 15,
   },
   summaryContainer: {
     paddingHorizontal: 10,
