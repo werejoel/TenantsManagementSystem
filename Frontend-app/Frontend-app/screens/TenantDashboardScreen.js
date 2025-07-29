@@ -20,7 +20,6 @@ import { AuthContext } from '../context/AuthContext';
 import { getMyHouse } from '../services/tenantService';
 import { fetchPayments } from '../services/paymentService';
 
-
 const { width } = Dimensions.get('window');
 
 const TenantDashboardScreen = () => {
@@ -30,8 +29,6 @@ const TenantDashboardScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [payments, setPayments] = useState([]);
   const [paymentsLoading, setPaymentsLoading] = useState(true);
-  // const [maintenanceRequests, setMaintenanceRequests] = useState([]);
-  // const [maintenanceLoading, setMaintenanceLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState('overview');
   const [paymentModalVisible, setPaymentModalVisible] = useState(false);
   const [maintenanceModalVisible, setMaintenanceModalVisible] = useState(false);
@@ -47,7 +44,6 @@ const TenantDashboardScreen = () => {
     try {
       setLoading(true);
       setPaymentsLoading(true);
-      // setMaintenanceLoading(true);
       const [houseData, paymentsData] = await Promise.all([
         getMyHouse(user?.token),
         fetchPayments(user?.token),
@@ -55,13 +51,11 @@ const TenantDashboardScreen = () => {
       setHouse(houseData);
       const myPayments = paymentsData.filter(p => p.tenant && p.tenant.user === user?.id);
       setPayments(myPayments);
-      // setMaintenanceRequests(maintenanceData);
     } catch (error) {
       Alert.alert('Error', 'Failed to fetch data. Please try again.');
     } finally {
       setLoading(false);
       setPaymentsLoading(false);
-      // setMaintenanceLoading(false);
     }
   }, [user]);
 
@@ -76,11 +70,12 @@ const TenantDashboardScreen = () => {
   }, [fetchData]);
 
   const handlePayment = () => {
-    if (!paymentAmount) {
-      Alert.alert('Error', 'Please enter payment amount');
+    const amount = parseFloat(paymentAmount);
+    if (isNaN(amount) || amount <= 0) {
+      Alert.alert('Error', 'Please enter a valid positive amount');
       return;
     }
-    Alert.alert('Success', `Payment request submitted successfully via ${getPaymentMethodLabel(paymentMethod)}`);
+    Alert.alert('Success', `Payment request for UGX ${amount.toLocaleString()} submitted successfully via ${getPaymentMethodLabel(paymentMethod)}`);
     setPaymentModalVisible(false);
     setPaymentAmount('');
     setPaymentMethod('cash');
@@ -106,19 +101,6 @@ const TenantDashboardScreen = () => {
     Alert.alert('Success', 'Maintenance request submitted successfully');
     setMaintenanceModalVisible(false);
     setMaintenanceRequest('');
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'Submitted':
-        return '#FEE2E2';
-      case 'In Progress':
-        return '#FEF3C7';
-      case 'Completed':
-        return '#DEF7EC';
-      default:
-        return '#F3F4F6';
-    }
   };
 
   const currentBalance = payments.length > 0 ? payments[0].balance_due : 0;
@@ -269,7 +251,7 @@ const TenantDashboardScreen = () => {
 
   const renderMaintenanceTab = () => (
     <View style={styles.tabContent}>
-      <View style={styles.maintenanceHeader}>
+      <View style={styles.myHeader}>
         <Text style={styles.sectionTitle}>Maintenance Requests</Text>
         <TouchableOpacity
           style={styles.filterButton}
@@ -420,7 +402,7 @@ const TenantDashboardScreen = () => {
             </View>
             <TextInput
               style={styles.input}
-              placeholder="Enter payment amount"
+              placeholder="Enter payment amount (UGX)"
               value={paymentAmount}
               onChangeText={setPaymentAmount}
               keyboardType="numeric"
@@ -615,9 +597,12 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 8,
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
   },
   activeTabButton: {
     backgroundColor: '#EBF4FF',
+    borderBottomColor: '#6366F1',
   },
   tabLabel: {
     marginLeft: 6,
@@ -649,6 +634,11 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 20,
     marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 6,
   },
   statHeader: {
     flexDirection: 'row',
@@ -684,10 +674,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 6,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 6,
   },
   miniStatValue: {
     fontSize: 18,
@@ -709,24 +699,24 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   actionCard: {
-    width: (width - 60) / 2,
-    aspectRatio: 1.2,
-    borderRadius: 16,
-    padding: 20,
+    width: (width - 60) / 2.5,
+    aspectRatio: 1.05,
+    borderRadius: 10,
+    padding: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.07,
+    shadowRadius: 3,
+    elevation: 2,
   },
   actionText: {
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: '600',
     color: '#fff',
-    marginTop: 12,
+    marginTop: 6,
     textAlign: 'center',
   },
   notificationsSection: {
@@ -738,10 +728,10 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 6,
   },
   notificationHeader: {
     flexDirection: 'row',
@@ -765,6 +755,12 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   paymentsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  myHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -812,10 +808,10 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 6,
   },
   paymentHeader: {
     flexDirection: 'row',
@@ -875,46 +871,15 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#1F2937',
   },
-  maintenanceCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  maintenanceHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  maintenanceTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1F2937',
-    marginLeft: 12,
-  },
-  maintenanceDetails: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  maintenanceDate: {
-    fontSize: 14,
-    color: '#6B7280',
-  },
   propertyCard: {
     backgroundColor: '#fff',
     borderRadius: 16,
     padding: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.15,
     shadowRadius: 8,
-    elevation: 4,
+    elevation: 6,
   },
   propertyHeader: {
     flexDirection: 'row',
