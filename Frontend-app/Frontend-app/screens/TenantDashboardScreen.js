@@ -42,7 +42,7 @@ const TenantDashboardScreen = () => {
 
   const fetchNotifications = useCallback(async () => {
     try {
-      // Replace with your backend endpoint for notifications
+      // backend endpoint for notifications
       const res = await axios.get('https://your-backend.com/api/notifications/', {
         headers: { Authorization: `Bearer ${user?.token}` },
       });
@@ -178,8 +178,6 @@ const TenantDashboardScreen = () => {
             </View>
           </View>
         </View>
-
-      {/* Quick Actions section removed, all buttons are now in the balance card */}
 
       <View style={styles.notificationsSection}>
         <Text style={styles.sectionTitle}>Recent Notifications</Text>
