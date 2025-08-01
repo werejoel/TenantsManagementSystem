@@ -2,7 +2,6 @@ from django.db import models
 from django.core.validators import RegexValidator
 from django.utils import timezone
 
-
 class Landlord(models.Model):
     """Model representing a landlord who owns properties"""
     name = models.CharField(max_length=255, help_text="Full name of the landlord")

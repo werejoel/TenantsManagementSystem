@@ -1,4 +1,13 @@
 from rest_framework.permissions import BasePermission, IsAuthenticated
+from django.shortcuts import render
+from rest_framework import generics
+from .models import House
+from .serializers import HouseSerializer
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+
 # Custom permission: Only admin/manager can delete
 class IsAdminOrManager(BasePermission):
     def has_permission(self, request, view):
@@ -11,11 +20,6 @@ class IsAdminOrManager(BasePermission):
         except Exception:
             pass
         return False
-from django.shortcuts import render
-from rest_framework import generics
-from .models import House
-from .serializers import HouseSerializer
-
 
 class HouseListCreateView(generics.ListCreateAPIView):
     queryset = House.objects.all()
@@ -31,11 +35,8 @@ class HouseListCreateView(generics.ListCreateAPIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         self.perform_update(serializer)
         return Response(serializer.data)
-# Update house/unit info
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.views import APIView
 
+# Update house/unit info
 class HouseRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     queryset = House.objects.all()
     serializer_class = HouseSerializer

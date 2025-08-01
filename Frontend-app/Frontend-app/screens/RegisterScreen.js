@@ -73,7 +73,7 @@ const RegisterScreen = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.card}>
         <View style={styles.illustrationIcon}>
-          <MaterialCommunityIcons name="account-plus" size={80} color="#4f8cff" />
+          <MaterialCommunityIcons name="account-plus" size={80} color="#4caf50" />
         </View>
         <Text style={styles.title}>Create Account</Text>
         <Text style={styles.subtitle}>Sign up to get started</Text>
@@ -109,14 +109,14 @@ const RegisterScreen = ({ navigation }) => {
               style={[styles.roleButton, role === 'tenant' && styles.roleButtonActive]}
               onPress={() => setRole('tenant')}
             >
-              <MaterialCommunityIcons name="account" size={22} color={role === 'tenant' ? '#fff' : '#4f8cff'} />
+              <MaterialCommunityIcons name="account" size={22} color={role === 'tenant' ? '#fff' : '#4caf50'} />
               <Text style={[styles.roleButtonText, role === 'tenant' && { color: '#fff' }]}>Tenant</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.roleButton, role === 'manager' && styles.roleButtonActive]}
               onPress={() => setRole('manager')}
             >
-              <MaterialCommunityIcons name="account-tie" size={22} color={role === 'manager' ? '#fff' : '#4f8cff'} />
+              <MaterialCommunityIcons name="account-tie" size={22} color={role === 'manager' ? '#fff' : '#4caf50'} />
               <Text style={[styles.roleButtonText, role === 'manager' && { color: '#fff' }]}>Manager</Text>
             </TouchableOpacity>
           </View>
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#4f8cff',
+    borderColor: '#4caf50',
     borderRadius: 8,
     paddingVertical: 8,
     paddingHorizontal: 18,
@@ -194,24 +194,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   roleButtonActive: {
-    backgroundColor: '#4f8cff',
-    borderColor: '#4f8cff',
+    backgroundColor: '#4caf50',
+    borderColor: '#4caf50',
   },
   roleButtonText: {
     marginLeft: 6,
     fontSize: 15,
-    color: '#4f8cff',
+    color: '#4caf50',
     fontWeight: '600',
   },
   loginButton: {
     width: '100%',
-    backgroundColor: '#4f8cff',
+    backgroundColor: '#4caf50',
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 8,
     marginBottom: 8,
-    shadowColor: '#4f8cff',
+    shadowColor: '#4caf50',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   registerButtonText: {
-    color: '#4f8cff',
+    color: '#4caf50',
     fontSize: 15,
     fontWeight: '600',
     textAlign: 'center',

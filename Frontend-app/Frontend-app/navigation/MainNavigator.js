@@ -87,14 +87,14 @@ const CustomDrawerContent = (props) => {
   return (
     <DrawerContentScrollView {...props} contentContainerStyle={{ flex: 1, paddingTop: 0 }}>
       <View style={drawerStyles.profileSection}>
-        <MaterialCommunityIcons name="account-circle" size={70} color="#4f8cff" style={drawerStyles.avatar} />
+        <MaterialCommunityIcons name="account-circle" size={70} color="#4caf50" style={drawerStyles.avatar} />
         <Text style={drawerStyles.username}>{user?.username || 'User'}</Text>
         <Text style={drawerStyles.role}>{user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : ''}</Text>
       </View>
       <DrawerItemList {...props} />
       <View style={drawerStyles.bottomSection}>
         <TouchableOpacity style={drawerStyles.logoutButton} onPress={logout}>
-          <MaterialCommunityIcons name="logout" size={20} color="#4f8cff" />
+          <MaterialCommunityIcons name="logout" size={20} color="#4caf50" />
           <Text style={drawerStyles.logoutText}>Logout</Text>
         </TouchableOpacity>
       </View>
@@ -154,7 +154,7 @@ const MainDrawer = () => {
           }
           return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
         },
-        drawerActiveTintColor: '#4f8cff',
+        drawerActiveTintColor: '#4caf50',
         drawerInactiveTintColor: '#888',
         drawerLabelStyle: {
           fontWeight: '600',
@@ -166,7 +166,7 @@ const MainDrawer = () => {
           elevation: 2,
           shadowOpacity: 0.12,
         },
-        headerTintColor: '#4f8cff',
+        headerTintColor: '#4caf50',
         headerTitleStyle: {
           fontWeight: 'bold',
           fontSize: 20,
@@ -246,7 +246,7 @@ const drawerStyles = StyleSheet.create({
   },
   role: {
     fontSize: 15,
-    color: '#4f8cff',
+    color: '#4caf50',
     fontWeight: '600',
     marginBottom: 2,
   },
@@ -265,14 +265,14 @@ const drawerStyles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 18,
     borderRadius: 8,
-    shadowColor: '#4f8cff',
+    shadowColor: '#4caf50',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.10,
     shadowRadius: 4,
     elevation: 2,
   },
   logoutText: {
-    color: '#4f8cff',
+    color: '#4caf50',
     fontWeight: 'bold',
     fontSize: 16,
     marginLeft: 8,

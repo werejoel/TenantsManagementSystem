@@ -140,26 +140,28 @@ const TenantDashboardScreen = () => {
             <Text style={styles.nextDue}>Next due: {nextDueDate}</Text>
             <View style={styles.allActionsRow}>
               <TouchableOpacity
-                style={[styles.actionButton, { backgroundColor: '#B91C1C' }]}
+                style={[styles.actionButton, { backgroundColor: '#260477FF' }]}
                 onPress={() => setPaymentModalVisible(true)}
                 activeOpacity={0.85}
               >
                 <MaterialCommunityIcons name="credit-card" size={22} color="#fff" style={styles.actionButtonIcon} />
-                <Text style={styles.actionButtonText}>Make Payment</Text>
+                <Text style={styles.actionButtonText}>Payment</Text>
               </TouchableOpacity>
+
               <TouchableOpacity
-                style={[styles.actionButton, { backgroundColor: '#F59E0B' }]}
+                style={[styles.actionButton, { backgroundColor: '#F01048FF' }]}
                 onPress={() => setMaintenanceModalVisible(true)}
                 activeOpacity={0.85}
               >
                 <MaterialCommunityIcons name="wrench" size={22} color="#fff" style={styles.actionButtonIcon} />
                 <Text style={styles.actionButtonText}>Maintenance</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#10B981' }]} activeOpacity={0.85}>
+
+              <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#F59E0B' }]} activeOpacity={0.85}>
                 <MaterialCommunityIcons name="file-document" size={22} color="#fff" style={styles.actionButtonIcon} />
                 <Text style={styles.actionButtonText}>Documents</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#8B5CF6' }]} activeOpacity={0.85}>
+              <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#1F2937' }]} activeOpacity={0.85}>
                 <MaterialCommunityIcons name="message" size={22} color="#fff" style={styles.actionButtonIcon} />
                 <Text style={styles.actionButtonText}>Contact</Text>
               </TouchableOpacity>
@@ -172,7 +174,7 @@ const TenantDashboardScreen = () => {
               <Text style={styles.miniStatLabel}>Overpayment</Text>
             </View>
             <View style={styles.miniStatCard}>
-              <MaterialCommunityIcons name="chart-line" size={20} color="#6366F1" />
+              <MaterialCommunityIcons name="chart-line" size={20} color="#10B981" />
               <Text style={styles.miniStatValue}>UGX {totalPaid.toLocaleString()}</Text>
               <Text style={styles.miniStatLabel}>Total Paid</Text>
             </View>
@@ -187,7 +189,7 @@ const TenantDashboardScreen = () => {
               <MaterialCommunityIcons
                 name={notification.type === 'warning' ? 'alert-circle' : 'information'}
                 size={20}
-                color={notification.type === 'warning' ? '#F59E0B' : '#6366F1'}
+                color={notification.type === 'warning' ? '#F59E0B' : '#10B981'}
               />
               <Text style={styles.notificationTitle}>{notification.title}</Text>
               <Text style={styles.notificationDate}>{notification.date}</Text>
@@ -213,7 +215,7 @@ const TenantDashboardScreen = () => {
       </View>
       {paymentsLoading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#6366F1" />
+          <ActivityIndicator size="large" color="#10B981" />
           <Text style={styles.loadingText}>Loading payments...</Text>
         </View>
       ) : payments.length === 0 ? (
@@ -292,13 +294,13 @@ const TenantDashboardScreen = () => {
       <Text style={styles.sectionTitle}>Property Information</Text>
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#6366F1" />
+          <ActivityIndicator size="large" color="#10B981" />
           <Text style={styles.loadingText}>Loading property details...</Text>
         </View>
       ) : house ? (
         <View style={styles.propertyCard}>
           <View style={styles.propertyHeader}>
-            <MaterialCommunityIcons name="home" size={32} color="#6366F1" />
+            <MaterialCommunityIcons name="home" size={32} color="#10B981" />
             <Text style={styles.propertyTitle}>Your Property</Text>
           </View>
           <View style={styles.propertyDetails}>
@@ -337,7 +339,7 @@ const TenantDashboardScreen = () => {
   if (loading && !refreshing) {
     return (
       <View style={styles.loadingScreen}>
-        <ActivityIndicator size="large" color="#6366F1" />
+        <ActivityIndicator size="large" color="#10B981" />
         <Text style={styles.loadingText}>Loading dashboard...</Text>
       </View>
     );
@@ -345,7 +347,7 @@ const TenantDashboardScreen = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#6366F1" />
+      <StatusBar barStyle="light-content" backgroundColor="#10B981" />
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <View style={styles.userInfo}>
@@ -399,7 +401,7 @@ const TenantDashboardScreen = () => {
                       <MaterialCommunityIcons
                         name={notification.type === 'warning' ? 'alert-circle' : 'information'}
                         size={20}
-                        color={notification.type === 'warning' ? '#F59E0B' : '#6366F1'}
+                        color={notification.type === 'warning' ? '#F59E0B' : '#10B981'}
                       />
                       <Text style={styles.notificationTitle}>{notification.title}</Text>
                       <Text style={styles.notificationDate}>{notification.date}</Text>
@@ -428,7 +430,7 @@ const TenantDashboardScreen = () => {
             <MaterialCommunityIcons
               name={tab.icon}
               size={20}
-              color={selectedTab === tab.key ? '#6366F1' : '#6B7280'}
+              color={selectedTab === tab.key ? '#10B981' : '#6B7280'}
             />
             <Text style={[styles.tabLabel, selectedTab === tab.key && styles.activeTabLabel]}>
               {tab.label}
@@ -571,7 +573,7 @@ const styles = StyleSheet.create({
   },
   paymentMethodBtnActive: {
     backgroundColor: '#E0E7FF',
-    borderColor: '#6366F1',
+    borderColor: '#10B981',
   },
   paymentMethodLabel: {
     fontSize: 13,
@@ -603,7 +605,7 @@ const styles = StyleSheet.create({
     color: '#6B7280',
   },
   header: {
-    backgroundColor: '#6366F1',
+    backgroundColor: '#10B981',
     paddingTop: Platform.OS === 'ios' ? 60 : 40,
     paddingBottom: 20,
     paddingHorizontal: 20,
@@ -673,7 +675,7 @@ const styles = StyleSheet.create({
   },
   activeTabButton: {
     backgroundColor: '#EBF4FF',
-    borderBottomColor: '#6366F1',
+    borderBottomColor: '#10B981',
   },
   tabLabel: {
     marginLeft: 6,
@@ -682,7 +684,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   activeTabLabel: {
-    color: '#6366F1',
+    color: '#10B981',
     fontWeight: '600',
   },
   content: {
@@ -701,7 +703,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   balanceCard: {
-    backgroundColor: '#6366F1',
+    backgroundColor: '#10B981',
     borderRadius: 16,
     padding: 20,
     marginBottom: 12,
@@ -777,7 +779,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 18,
     borderRadius: 24,
-    backgroundColor: '#6366F1',
+    backgroundColor: '#10B981',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.06,
@@ -1028,7 +1030,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   submitButton: {
-    backgroundColor: '#6366F1',
+    backgroundColor: '#10B981',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',

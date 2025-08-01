@@ -74,7 +74,7 @@ const DashboardScreen = ({ navigation }) => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <MaterialCommunityIcons name="progress-clock" size={48} color="#4f8cff" />
+        <MaterialCommunityIcons name="progress-clock" size={48} color="#4caf50" />
         <Text style={styles.loadingText}>Loading Dashboard...</Text>
       </View>
     );
@@ -124,15 +124,15 @@ const DashboardScreen = ({ navigation }) => {
     <View style={{ flex: 1 }}>
       <View style={styles.headerRow}>
         <TouchableOpacity style={styles.headerButton} onPress={() => navigation.openDrawer()}>
-          <MaterialCommunityIcons name="menu" size={28} color="#4f8cff" />
+          <MaterialCommunityIcons name="menu" size={28} color="#4caf50" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.headerButton} onPress={handleLogout}>
-          <MaterialCommunityIcons name="logout" size={22} color="#4f8cff" />
+          <MaterialCommunityIcons name="logout" size={22} color="#4caf50" />
         </TouchableOpacity>
       </View>
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.headerCard}>
-          <MaterialCommunityIcons name="view-dashboard" size={48} color="#4f8cff" style={{ marginBottom: 8 }} />
+          <MaterialCommunityIcons name="view-dashboard" size={48} color="#4caf50" style={{ marginBottom: 8 }} />
           <Text style={styles.title}>{dashboard.dashboard}</Text>
           <View style={styles.roleBadge}>
             <MaterialCommunityIcons 
@@ -146,14 +146,14 @@ const DashboardScreen = ({ navigation }) => {
 
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <MaterialCommunityIcons name="account-group" size={32} color="#4f8cff" />
+            <MaterialCommunityIcons name="account-group" size={32} color="#4caf50" />
             <Text style={styles.statLabel}>
               {dashboard.role === 'manager' ? 'Total Tenants' : 'My Tenants'}
             </Text>
             <Text style={styles.statValue}>{dashboard.total_tenants || 0}</Text>
           </View>
           <View style={styles.statCard}>
-            <MaterialCommunityIcons name="cash-multiple" size={32} color="#4f8cff" />
+            <MaterialCommunityIcons name="cash-multiple" size={32} color="#4caf50" />
             <Text style={styles.statLabel}>Payments</Text>
             <Text style={styles.statValue}>{dashboard.total_payments || 0}</Text>
           </View>
@@ -161,12 +161,12 @@ const DashboardScreen = ({ navigation }) => {
         
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <MaterialCommunityIcons name="bank" size={32} color="#4f8cff" />
+            <MaterialCommunityIcons name="bank" size={32} color="#4caf50" />
             <Text style={styles.statLabel}>Balance</Text>
             <Text style={styles.statValue}>{dashboard.total_balance || '0.00'}</Text>
           </View>
           <View style={styles.statCard}>
-            <MaterialCommunityIcons name="credit-card-refund" size={32} color="#4f8cff" />
+            <MaterialCommunityIcons name="credit-card-refund" size={32} color="#4caf50" />
             <Text style={styles.statLabel}>Overpayment</Text>
             <Text style={styles.statValue}>{dashboard.total_overpayment || '0.00'}</Text>
           </View>
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   },
   retryButton: {
     marginTop: 16,
-    backgroundColor: '#4f8cff',
+    backgroundColor: '#4caf50',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
   roleBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#4f8cff',
+    backgroundColor: '#4caf50',
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 4,
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 20,
     padding: 10,
-    shadowColor: '#4f8cff',
+    shadowColor: '#4caf50',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.10,
     shadowRadius: 4,

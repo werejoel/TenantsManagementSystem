@@ -60,8 +60,8 @@ export default function App() {
     <ErrorBoundary>
       <SafeAreaProvider>
         <AuthProvider>
-          -<NavigationContainer>
-            <StatusBar style="auto" />
+          <NavigationContainer>
+            <StatusBar style="auto"/>
             <MainNavigator />
           </NavigationContainer>
         </AuthProvider>

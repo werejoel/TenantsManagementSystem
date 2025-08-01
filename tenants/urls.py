@@ -1,9 +1,7 @@
 from django.urls import path
 from .views import DashboardAPIView, dashboard_redirect, payment_report, tenant_balance_report
 from .views import payment_report_pdf, tenant_balance_pdf
-from .views import TenantListCreateView, PaymentListCreateView, HouseListCreateView, \
-    TenantRetrieveUpdateDeactivateView, AssignTenantToHouseView, TenantAssignedHouseView, TenantActivateView, ChargeListCreateView
-
+from  .views import *#importing all views
 urlpatterns = [
     path('', dashboard_redirect, name='dashboard_redirect'),
     path('dashboard/', DashboardAPIView.as_view(), name='dashboard'),

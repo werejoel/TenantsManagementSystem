@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 2,
   },
   editBtn: {
-    backgroundColor: '#007bff', 
+    backgroundColor: '#10B981', 
   },
   deactivateBtn: {
     backgroundColor: '#dc3545',
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     maxWidth: 190,
   },
   activateBtn: {
-    backgroundColor: '#28a745', // Green for activate
+    backgroundColor: '#28a745',
   },
   buttonContent: {
     height: 42, 

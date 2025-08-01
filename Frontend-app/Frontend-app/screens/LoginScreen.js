@@ -115,7 +115,7 @@ const LoginScreen = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.card}>
         <View style={styles.illustrationIcon}>
-          <MaterialCommunityIcons name="account-circle" size={90} color="#4f8cff" />
+          <MaterialCommunityIcons name="account-circle" size={90} color="#4caf50"/>
         </View>
         <Text style={styles.title}>Welcome Back</Text>
         <Text style={styles.subtitle}>Sign in to your account</Text>
@@ -152,7 +152,7 @@ const LoginScreen = ({ navigation }) => {
             <MaterialCommunityIcons
               name={showPassword ? 'eye-off-outline' : 'eye-outline'}
               size={24}
-              color={loading ? '#ccc' : '#4f8cff'}
+              color={loading ? '#ccc' : '#4caf50'}
             />
           </TouchableOpacity>
         </View>
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   input: {
     width: '100%',
     height: 48,
-    borderColor: '#e0e0e0',
+    borderColor: '#4caf50',
     borderWidth: 1,
     marginBottom: 16,
     paddingHorizontal: 14,
@@ -255,14 +255,14 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     width: '100%',
-    backgroundColor: '#4f8cff',
+    backgroundColor: '#4caf50',
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 8,
     marginBottom: 8,
-    shadowColor: '#4f8cff',
+    shadowColor: '#4caf50',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     minHeight: 48,
   },
   loginButtonDisabled: {
-    backgroundColor: '#a0a0a0',
+    backgroundColor: '#e74c3c',
     shadowOpacity: 0.05,
   },
   loginButtonText: {
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   registerButtonText: {
-    color: '#4f8cff',
+    color: '#23BD29FF',
     fontSize: 15,
     fontWeight: '600',
     textAlign: 'center',

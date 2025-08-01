@@ -20,7 +20,7 @@ from rest_framework import permissions
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import TenantSerializer, PaymentSerializer, HouseSerializer, ChargeSerializer
+from .serializers import * #Importing all Serializers
 
 class ChargeListCreateView(generics.ListCreateAPIView):
     queryset = Charge.objects.all()
@@ -164,7 +164,7 @@ class PaymentListCreateView(generics.ListCreateAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
 
-class HouseListCreateView(generics.ListCreateAPIView):  # Add this class
+class HouseListCreateView(generics.ListCreateAPIView):
     queryset = House.objects.all()
     serializer_class = HouseSerializer
 

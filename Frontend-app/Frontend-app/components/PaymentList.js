@@ -60,7 +60,7 @@ const PaymentList = ({ payments, navigation }) => {
     };
     return {
       label: 'Paid',
-      color: '#2196f3',
+      color: '#10B981',
       bgColor: '#e6f0fa',
       icon: 'check-circle',
       priority: 2
@@ -214,7 +214,7 @@ const PaymentList = ({ payments, navigation }) => {
       ])
     ].map(row => row.join(',')).join('\n');
 
-    Alert.alert('Export', 'CSV data generated. In a real app, this would initiate a download.');
+    Alert.alert('Export', 'CSV data generated.');
     console.log(csvContent);
   };
 
@@ -329,22 +329,22 @@ const PaymentList = ({ payments, navigation }) => {
             {isExpanded && (
               <View style={styles.expandedSection}>
                 <View style={styles.expandedRow}>
-                  <MaterialCommunityIcons name="credit-card" size={16} color="#4f8cff" />
+                  <MaterialCommunityIcons name="credit-card" size={16} color="#10B981" />
                   <Text style={styles.expandedText}>{item.payment_method || 'Not specified'}</Text>
                 </View>
                 <View style={styles.expandedRow}>
-                  <MaterialCommunityIcons name="barcode" size={16} color="#4f8cff" />
+                  <MaterialCommunityIcons name="barcode" size={16} color="#10B981" />
                   <Text style={styles.expandedText}>{item.reference_number || 'Not provided'}</Text>
                 </View>
                 <View style={styles.expandedRow}>
-                  <MaterialCommunityIcons name="calendar-range" size={16} color="#4f8cff" />
+                  <MaterialCommunityIcons name="calendar-range" size={16} color="#10B981" />
                   <Text style={styles.expandedText}>
                     {item.payment_start_date} to {item.payment_end_date}
                   </Text>
                 </View>
                 {item.notes && (
                   <View style={styles.expandedRow}>
-                    <MaterialCommunityIcons name="note-text" size={16} color="#4f8cff" />
+                    <MaterialCommunityIcons name="note-text" size={16} color="#10B981" />
                     <Text style={styles.expandedText}>{item.notes}</Text>
                   </View>
                 )}
@@ -597,7 +597,7 @@ const PaymentList = ({ payments, navigation }) => {
                 title="Total Paid"
                 value={`UGX ${summaryData.totalPaid.toLocaleString()}`}
                 icon="cash-multiple"
-                color="#4f8cff"
+                color="#10B981"
                 bgColor="#f0f6ff"
                 subtitle={`${summaryData.totalPayments} payments`}
                 onPress={() => applyQuickFilter('all')}
@@ -635,7 +635,7 @@ const PaymentList = ({ payments, navigation }) => {
           {/* Controls Row with Sort Controls */}
           <View style={styles.controlsRowCombined}>
             <View style={styles.searchContainerReduced}>
-              <MaterialCommunityIcons name="magnify" size={22} color="#4f8cff" style={{ marginRight: 8 }} />
+              <MaterialCommunityIcons name="magnify" size={22} color="#10B981" style={{ marginRight: 8 }} />
               <TextInput
                 style={styles.searchInputReduced}
                 placeholder="Search payments..."
@@ -666,7 +666,7 @@ const PaymentList = ({ payments, navigation }) => {
                 <MaterialCommunityIcons
                   name={viewMode === 'list' ? 'view-grid' : 'view-list'}
                   size={22}
-                  color="#4f8cff"
+                  color="#10B981"
                 />
               </TouchableOpacity>
             </View>
@@ -694,7 +694,7 @@ const PaymentList = ({ payments, navigation }) => {
                   <MaterialCommunityIcons
                     name={sort.icon}
                     size={16}
-                    color={sortBy === sort.key ? '#fff' : '#4f8cff'}
+                    color={sortBy === sort.key ? '#fff' : '#10B981'}
                   />
                   <Text style={[
                     styles.sortBtnText,
@@ -777,7 +777,7 @@ const PaymentList = ({ payments, navigation }) => {
                           style={styles.actionBtn}
                           onPress={() => setSelectedPayment(item)}
                         >
-                          <MaterialCommunityIcons name="eye" size={20} color="#4f8cff" />
+                          <MaterialCommunityIcons name="eye" size={20} color="#10B981" />
                         </TouchableOpacity>
                       </View>
                     </View>
@@ -897,7 +897,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#4caf50',
   },
   reminderBtn: {
-    backgroundColor: '#2196f3',
+    backgroundColor: '#10B981',
   },
   exportBtn: {
     backgroundColor: '#ff9800',
@@ -959,7 +959,7 @@ const styles = StyleSheet.create({
   filterBtnImproved: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#4f8cff',
+    backgroundColor: '#10B981',
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 10,
@@ -999,11 +999,11 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   sortBtnActive: {
-    backgroundColor: '#4f8cff',
+    backgroundColor: '#10B981',
   },
   sortBtnText: {
     marginLeft: 6,
-    color: '#4f8cff',
+    color: '#10B981',
     fontWeight: '600',
     fontSize: 14,
   },
@@ -1185,7 +1185,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   emptyButton: {
-    backgroundColor: '#4f8cff',
+    backgroundColor: '#10B981',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 12,
@@ -1198,7 +1198,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 24,
     bottom: 24,
-    backgroundColor: '#4f8cff',
+    backgroundColor: '#10B981',
     width: 56,
     height: 56,
     borderRadius: 28,
@@ -1265,7 +1265,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 12,
-    backgroundColor: '#4f8cff',
+    backgroundColor: '#10B981',
   },
   applyFiltersText: {
     color: '#fff',
@@ -1292,7 +1292,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   quickFilterText: {
-    color: '#4f8cff',
+    color: '#10B981',
     fontWeight: '600',
     fontSize: 14,
   },
@@ -1310,10 +1310,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   statusFilterBtnActive: {
-    backgroundColor: '#4f8cff',
+    backgroundColor: '#10B981',
   },
   statusFilterText: {
-    color: '#4f8cff',
+    color: '#10B981',
     fontWeight: '600',
     fontSize: 14,
   },
@@ -1416,7 +1416,7 @@ const styles = StyleSheet.create({
   },
   amountValue: {
     fontWeight: 'bold',
-    color: '#2196f3',
+    color: '#10B981',
   },
   chargeDetailRow: {
     flexDirection: 'row',
@@ -1434,7 +1434,7 @@ const styles = StyleSheet.create({
   },
   chargeAmount: {
     fontSize: 14,
-    color: '#4f8cff',
+    color: '#10B981',
     fontWeight: 'bold',
   },
   chargeStatus: {
@@ -1467,7 +1467,7 @@ const styles = StyleSheet.create({
   tableHeaderCell: {
     fontWeight: '700',
     fontSize: 14,
-    color: '#4f8cff',
+    color: '#10B981',
     paddingHorizontal: 4,
     paddingVertical: 2,
     letterSpacing: 0.1,
@@ -1505,7 +1505,7 @@ const styles = StyleSheet.create({
   tableHeaderCell: {
     fontWeight: '700',
     fontSize: 14,
-    color: '#4f8cff',
+    color: '#10B981',
     paddingHorizontal: 4,
     paddingVertical: 2,
     letterSpacing: 0.1,

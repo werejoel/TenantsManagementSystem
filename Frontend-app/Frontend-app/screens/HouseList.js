@@ -73,11 +73,11 @@ const HouseListContent = () => {
         card: '#fff',            // Card/blocks background
         text: '#222',            // Main text
         textLight: '#555',       // Less prominent text
-        divider: '#e0e0e0',      // Divider
+        divider: '#22c55e',      // Divider
         fabIcon: '#fff',         // FAB icon
         accent: '#22c55e',       // Accent (for success, vacant, etc.)
         error: '#ef4444',        // Error
-        chipBg: '#e0e0e0',       // Chip background
+        chipBg: '#ffffff',       // Chip background
         chipText: '#ffffff',     // Chip text
         badgeOccupied: '#ef4444',// Red for occupied
         badgeVacant: '#22c55e',  // Green for vacant
@@ -578,9 +578,9 @@ const HouseListContent = () => {
                     </View>
                 </View>
                 <View style={dynamicStyles.analyticsRightRow}>
-                    <Text variant="titleSmall" style={[dynamicStyles.analyticsTitle, { color: COLORS.primary, fontWeight: 'bold', letterSpacing: 0.5 }]}>Analytics</Text>
+                    <Text variant="titleSmall" style={[dynamicStyles.analyticsTitle, { color: COLORS.primary, fontWeight: 'bold', letterSpacing: 0.5 }]}>Available  Information</Text>
                     <View style={dynamicStyles.analyticsRowRow}>
-                        <Chip style={[dynamicStyles.analyticsChipRow, { backgroundColor: COLORS.primary }]} textStyle={{ color: '#fff', fontWeight: 'bold', fontSize: 15 }} icon="home-group">
+                        <Chip style={[dynamicStyles.analyticsChipRow, { backgroundColor: COLORS.primary}]} textStyle={{ color: '#fff', fontWeight: 'bold', fontSize: 15 }} icon="home-group">
                             Total: {total}
                         </Chip>
                         <Chip style={[dynamicStyles.analyticsChipRow, { backgroundColor: COLORS.badgeOccupied }]} textStyle={{ color: '#fff', fontWeight: 'bold', fontSize: 15 }} icon="home-alert">
@@ -653,19 +653,24 @@ const HouseListContent = () => {
                     )}
                 </ScrollView>
             </View>
-    <View style={{ position: 'absolute', right: 24, bottom: 32, zIndex: 10 }}>
+    <View
+     style={{ 
+        position: 'absolute', 
+        right: 24, 
+        bottom: 32, 
+        zIndex: 10 
+        }}>
         <TouchableOpacity
             activeOpacity={0.85}
             onPress={() => setModalVisible(true)}
             accessibilityLabel="Add House"
             style={{
                 borderRadius: 28,
-                width: 56,
-                height: 56,
+                width: 50,
+                height: 50,
                 backgroundColor: COLORS.primary,
                 justifyContent: 'center',
                 alignItems: 'center',
-                shadowColor: COLORS.primary,
                 shadowOffset: { width: 0, height: 4 },
                 shadowOpacity: 0.25,
                 shadowRadius: 8,
@@ -738,7 +743,7 @@ const createStyles = (theme, COLORS) => StyleSheet.create({
     sectionTitle: {
         fontWeight: 'bold',
         marginBottom: 8,
-        color: '#222', // darker for visibility
+        color: '#222',
         fontSize: 17,
     },
     searchFilterRowRow: {
@@ -765,7 +770,7 @@ const createStyles = (theme, COLORS) => StyleSheet.create({
     analyticsTitle: {
         fontWeight: 'bold',
         marginBottom: 8,
-        color: '#222', // darker for visibility
+        color: '#222',
         fontSize: 17,
     },
     analyticsRowRow: {
@@ -775,12 +780,10 @@ const createStyles = (theme, COLORS) => StyleSheet.create({
     analyticsChipRow: {
         marginRight: 8,
         marginBottom: 8,
-        backgroundColor: COLORS.chipBg,
-        borderColor: COLORS.divider,
         borderWidth: 1,
     },
     analyticsChipTextRow: {
-        color: '#fff', // white for best contrast
+        color: '#fff', 
         fontWeight: 'bold',
     },
     analyticsDivider: {

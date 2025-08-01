@@ -28,11 +28,3 @@ class PaymentAdmin(admin.ModelAdmin):
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
-
-     # Ensure the house dropdown is populated
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "house":
-            kwargs["queryset"] = House.objects.all()
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
-    
-
