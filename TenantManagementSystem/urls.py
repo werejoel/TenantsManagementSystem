@@ -18,6 +18,7 @@ urlpatterns = [
     path('api/accounts/', include('accounts.urls')),
     path('tenants/', TenantListCreateView.as_view(), name='tenant-list'),
     path('tenants/<int:pk>/activate/', TenantActivateView.as_view(), name='tenant-activate')
+    ,path('api/maintenance/', include('maintenance.urls'))
 ]
 
 

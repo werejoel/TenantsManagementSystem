@@ -20,6 +20,8 @@ import { Image } from 'react-native';
 import { AuthContext } from '../context/AuthContext';
 import { getMyHouse } from '../services/tenantService';
 import { fetchPayments } from '../services/paymentService';
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
 
 const { width } = Dimensions.get('window');
 
@@ -39,6 +41,104 @@ const TenantDashboardScreen = () => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notificationsVisible, setNotificationsVisible] = useState(false);
+  const [myMaintenanceRequests, setMyMaintenanceRequests] = useState([]);
+  const [maintenanceLoading, setMaintenanceLoading] = useState(false);
+  const [maintenanceFilter, setMaintenanceFilter] = useState('all');
+  const [maintenanceSort, setMaintenanceSort] = useState('created_at_desc');
+  const [maintenanceSearch, setMaintenanceSearch] = useState('');
+
+  // --- Push Notification Setup ---
+  useEffect(() => {
+    let notificationListener;
+    let responseListener;
+
+    async function registerForPushNotificationsAsync() {
+      let token;
+      if (Device.isDevice) {
+        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+        let finalStatus = existingStatus;
+        if (existingStatus !== 'granted') {
+          const { status } = await Notifications.requestPermissionsAsync();
+          finalStatus = status;
+        }
+        if (finalStatus !== 'granted') {
+          alert('Failed to get push token for push notification!');
+          return;
+        }
+        token = (await Notifications.getExpoPushTokenAsync()).data;
+        // Send token to backend
+        if (user?.token) {
+          try {
+            await axios.post('http://127.0.0.1:8000/api/devices/register/', { token }, {
+              headers: { Authorization: `Bearer ${user.token}` }
+            });
+          } catch (e) {
+            // Optionally handle error
+          }
+        }
+      } else {
+        alert('Must use physical device for Push Notifications');
+      }
+      if (Platform.OS === 'android') {
+        Notifications.setNotificationChannelAsync('default', {
+          name: 'default',
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#FF231F7C',
+        });
+      }
+      return token;
+    }
+
+    // Register and set up listeners
+    registerForPushNotificationsAsync();
+    notificationListener = Notifications.addNotificationReceivedListener(notification => {
+      // Show an alert or update state/UI as needed
+      Alert.alert(
+        notification.request.content.title || 'Notification',
+        notification.request.content.body || ''
+      );
+    });
+    responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+      // Optionally handle notification tap
+    });
+    return () => {
+      if (notificationListener) Notifications.removeNotificationSubscription(notificationListener);
+      if (responseListener) Notifications.removeNotificationSubscription(responseListener);
+    };
+  }, [user]);
+
+  const registerForPushNotificationsAsync = async (userToken) => {
+    let token;
+    if (Device.isDevice) {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') {
+        alert('Failed to get push token for push notification!');
+        return;
+      }
+      token = (await Notifications.getExpoPushTokenAsync()).data;
+      // Send token to backend
+      await axios.post('http://127.0.0.1:8000/api/devices/register/', { token }, {
+        headers: { Authorization: `Bearer ${userToken}` }
+      });
+    } else {
+      alert('Must use physical device for Push Notifications');
+    }
+    if (Platform.OS === 'android') {
+      Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+      });
+    }
+    return token;
+  };
 
   const fetchNotifications = useCallback(async () => {
     try {
@@ -79,9 +179,30 @@ const TenantDashboardScreen = () => {
     }
   }, [user, fetchNotifications]);
 
+  const fetchMyMaintenanceRequests = useCallback(async () => {
+    setMaintenanceLoading(true);
+    try {
+      const res = await axios.get('http://127.0.0.1:8000/api/maintenance/requests/', {
+        headers: { Authorization: `Bearer ${user?.token}` },
+      });
+      setMyMaintenanceRequests(res.data);
+    } catch (error) {
+      setMyMaintenanceRequests([]);
+    } finally {
+      setMaintenanceLoading(false);
+    }
+  }, [user]);
+
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+    fetchMyMaintenanceRequests();
+  }, [fetchData, fetchMyMaintenanceRequests]);
+
+  useEffect(() => {
+    if (user?.token) {
+      registerForPushNotificationsAsync(user.token);
+    }
+  }, [user]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -113,20 +234,43 @@ const TenantDashboardScreen = () => {
     }
   };
 
-  const handleMaintenanceRequest = () => {
+  const handleMaintenanceRequest = async () => {
     if (!maintenanceRequest.trim()) {
       Alert.alert('Error', 'Please describe the maintenance issue');
       return;
     }
-    Alert.alert('Success', 'Maintenance request submitted successfully');
-    setMaintenanceModalVisible(false);
-    setMaintenanceRequest('');
+    try {
+      const res = await axios.post(
+        'http://127.0.0.1:8000/api/maintenance/requests/create/',
+        { description: maintenanceRequest },
+        { headers: { Authorization: `Bearer ${user?.token}` } }
+      );
+      Alert.alert('Success', 'Maintenance request submitted successfully');
+      setMaintenanceModalVisible(false);
+      setMaintenanceRequest('');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to submit maintenance request');
+    }
   };
 
   const currentBalance = payments.length > 0 ? payments[0].balance_due : 0;
   const overpayment = payments.length > 0 ? payments[0].overpayment : 0;
   const totalPaid = payments.reduce((sum, p) => sum + (p.amount_paid || 0), 0);
   const nextDueDate = '2025-02-01';
+
+  const filteredSortedRequests = myMaintenanceRequests
+    .filter(req => (maintenanceFilter === 'all' || req.status === maintenanceFilter))
+    .filter(req => req.description.toLowerCase().includes(maintenanceSearch.toLowerCase()) || (req.notes && req.notes.toLowerCase().includes(maintenanceSearch.toLowerCase())))
+    .sort((a, b) => {
+      if (maintenanceSort === 'created_at_desc') {
+        return new Date(b.created_at) - new Date(a.created_at);
+      } else if (maintenanceSort === 'created_at_asc') {
+        return new Date(a.created_at) - new Date(b.created_at);
+      } else if (maintenanceSort === 'status') {
+        return a.status.localeCompare(b.status);
+      }
+      return 0;
+    });
 
   const renderOverviewTab = () => (
     <View style={styles.tabContent}>
@@ -273,19 +417,102 @@ const TenantDashboardScreen = () => {
     <View style={styles.tabContent}>
       <View style={styles.myHeader}>
         <Text style={styles.sectionTitle}>Maintenance Requests</Text>
-        <TouchableOpacity
-          style={styles.filterButton}
-          onPress={() => Alert.alert('Filter', 'Filter options coming soon')}
-        >
-          <MaterialCommunityIcons name="filter-variant" size={20} color="#6B7280" />
-          <Text style={styles.filterText}>Filter</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <TouchableOpacity
+            style={styles.filterButton}
+            onPress={() => setMaintenanceFilter(maintenanceFilter === 'all' ? 'pending' : maintenanceFilter === 'pending' ? 'in_progress' : maintenanceFilter === 'in_progress' ? 'completed' : 'all')}
+          >
+            <MaterialCommunityIcons name="filter-variant" size={20} color="#6B7280" />
+            <Text style={styles.filterText}>Filter: {maintenanceFilter.replace('_', ' ').replace(/^./, c => c.toUpperCase())}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.filterButton, { marginLeft: 8 }]}
+            onPress={() => setMaintenanceSort(maintenanceSort === 'created_at_desc' ? 'created_at_asc' : maintenanceSort === 'created_at_asc' ? 'status' : 'created_at_desc')}
+          >
+            <MaterialCommunityIcons name="sort" size={20} color="#6B7280" />
+            <Text style={styles.filterText}>Sort: {maintenanceSort === 'created_at_desc' ? 'Newest' : maintenanceSort === 'created_at_asc' ? 'Oldest' : 'Status'}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-      <View style={styles.emptyState}>
-        <MaterialCommunityIcons name="wrench" size={64} color="#D1D5DB" />
-        <Text style={styles.emptyStateTitle}>No Maintenance Requests</Text>
-        <Text style={styles.emptyStateText}>Your requests will appear here</Text>
-      </View>
+      <TextInput
+        style={[styles.input, { marginBottom: 10 }]}
+        placeholder="Search maintenance requests..."
+        value={maintenanceSearch}
+        onChangeText={setMaintenanceSearch}
+      />
+      {maintenanceLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#10B981" />
+          <Text style={styles.loadingText}>Loading requests...</Text>
+        </View>
+      ) : filteredSortedRequests.length === 0 ? (
+        <View style={styles.emptyState}>
+          <MaterialCommunityIcons name="wrench" size={64} color="#D1D5DB" />
+          <Text style={styles.emptyStateTitle}>No Maintenance Requests</Text>
+          <Text style={styles.emptyStateText}>Your requests will appear here</Text>
+        </View>
+      ) : (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {filteredSortedRequests.map((req) => (
+            <View key={req.id} style={styles.paymentCard}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text style={{ fontWeight: 'bold', color: '#1F2937' }}>Status: <Text style={{ color: req.status === 'completed' ? '#10B981' : req.status === 'in_progress' ? '#F59E0B' : '#EF4444' }}>{req.status.replace('_', ' ')}</Text></Text>
+                <Text style={{ color: '#6B7280', fontSize: 12 }}>{new Date(req.created_at).toLocaleDateString()} {new Date(req.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+              </View>
+              <Text style={{ marginTop: 8, color: '#374151', fontWeight: 'bold' }}>Description:</Text>
+              <Text style={{ color: '#374151', marginBottom: 4 }}>{req.description}</Text>
+              <Text style={{ color: '#374151', fontWeight: 'bold' }}>Notes:</Text>
+              <Text style={{ color: '#6B7280', fontStyle: req.notes ? 'italic' : 'normal' }}>{req.notes || 'No notes yet.'}</Text>
+              <Text style={{ color: '#374151', fontWeight: 'bold', marginTop: 4 }}>Last Updated:</Text>
+              <Text style={{ color: '#6B7280', fontSize: 12 }}>{new Date(req.updated_at).toLocaleDateString()} {new Date(req.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 8 }}>
+                <TouchableOpacity
+                  style={{ backgroundColor: '#E0E7FF', borderRadius: 8, paddingVertical: 6, paddingHorizontal: 14, marginRight: 8 }}
+                  onPress={() => {
+                    Alert.alert(
+                      'Request Details',
+                      `Status: ${req.status.replace('_', ' ')}\n\nDescription: ${req.description}\n\nNotes: ${req.notes || 'No notes yet.'}\n\nCreated: ${new Date(req.created_at).toLocaleString()}\nLast Updated: ${new Date(req.updated_at).toLocaleString()}`
+                    );
+                  }}
+                >
+                  <Text style={{ color: '#1F2937', fontWeight: 'bold' }}>View Details</Text>
+                </TouchableOpacity>
+                {req.status === 'pending' && (
+                  <TouchableOpacity
+                    style={{ backgroundColor: '#F59E0B', borderRadius: 8, paddingVertical: 6, paddingHorizontal: 14 }}
+                    onPress={async () => {
+                      try {
+                        await axios.patch(
+                          `http://127.0.0.1:8000/api/maintenance/requests/${req.id}/`,
+                          { status: 'cancelled' },
+                          { headers: { Authorization: `Bearer ${user?.token}` } }
+                        );
+                        fetchMyMaintenanceRequests();
+                        Alert.alert('Cancelled', 'Request cancelled successfully');
+                      } catch (e) {
+                        Alert.alert('Error', 'Could not cancel request');
+                      }
+                    }}
+                  >
+                    <Text style={{ color: '#fff', fontWeight: 'bold' }}>Cancel</Text>
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity
+                  style={{ backgroundColor: '#10B981', borderRadius: 8, paddingVertical: 6, paddingHorizontal: 14, marginLeft: 8 }}
+                  onPress={() => {
+                    Alert.alert('Export', 'Exporting this request as JSON...');
+                    const dataStr = JSON.stringify(req, null, 2);
+                    // In a real app, use FileSystem or Share API to export. Here, just log:
+                    console.log('Exported request:', dataStr);
+                  }}
+                >
+                  <Text style={{ color: '#fff', fontWeight: 'bold' }}>Export</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))}
+        </ScrollView>
+      )}
     </View>
   );
 
